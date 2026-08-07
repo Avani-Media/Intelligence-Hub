@@ -626,7 +626,7 @@ window.addEventListener('unhandledrejection',function(e){var b=document.getEleme
 
     <section class="view" id="campaigns-view">
       <div class="section-title"><h3>Campaign Explorer</h3><p>Search, filter, and sort every campaign in the source file.</p></div>
-      <div class="toolbar"><div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="search" id="tableSearch" placeholder="Campaign, CID, advertiser"></div><select class="select" id="statusFilter"><option>Active</option><option>Ended</option></select><select class="select" id="healthFilter"><option value="All">All health levels</option><option>On Track</option><option>Watch</option><option>At Risk</option><option>Launch Watch</option><option>Ended</option></select><div class="toolbar-spacer"></div><span class="tag" id="tableCount">—</span></div>
+      <div class="toolbar"><div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input class="search" id="tableSearch" placeholder="Campaign, CID, advertiser"></div><select class="select" id="advertiserFilter"><option value="All">All advertisers</option></select><select class="select" id="statusFilter"><option>Active</option><option>Ended</option></select><select class="select" id="healthFilter"><option value="All">All health levels</option><option>On Track</option><option>Watch</option><option>At Risk</option><option>Launch Watch</option><option>Ended</option></select><div class="toolbar-spacer"></div><span class="tag" id="tableCount">—</span></div>
       <article class="card table-card"><div class="table-wrap"><table><thead><tr><th data-sort="status">Status</th><th data-sort="cid">CID</th><th data-sort="campaign">Campaign</th><th data-sort="advertiser">Advertiser</th><th data-sort="delivered">Delivery</th><th data-sort="remaining">Leads Remaining</th><th data-sort="undelivered" title="Valid Leads minus Billable">Undelivered</th><th data-sort="validRate">Valid Rate</th><th data-sort="daysRemaining">Days Left</th><th data-sort="requiredDaily">Weekly Need</th><th data-sort="forecastPct">Forecast</th><th data-sort="health">Health</th></tr></thead><tbody id="campaignTableBody"></tbody></table></div></article>
     </section>
 
@@ -1110,7 +1110,7 @@ function renderAll(){
   $('#snapshotDate').textContent=fmtDate(snapshotDate);
   $('#sourceCount').textContent=`${model.length} campaign records · ${leadData.length} lead records`;
   if(currentMode==='performance'){$('#headerMeta').textContent=`${model.length} campaigns · data through ${fmtDate(snapshotDate)}`;}
-  renderHome();renderOverview();renderCampaignTable();renderForecast();renderHistory();if(currentView==='invalid')renderInvalid();
+  renderHome();renderOverview();populateCampaignAdvertisers();renderCampaignTable();renderForecast();renderHistory();if(currentView==='invalid')renderInvalid();
 }
 
 function renderOverview(){
@@ -1164,10 +1164,18 @@ function renderOverview(){
  $('#priorityCallouts').innerHTML=calls.join('')||'<div class="empty">No priority callouts.</div>';
 }
 
+function populateCampaignAdvertisers(){
+ const el=$('#advertiserFilter');if(!el)return;
+ const current=el.value||'All';
+ const names=[...new Set(scopeData().map(r=>r.advertiser).filter(Boolean))].sort();
+ el.innerHTML='<option value="All">All advertisers</option>'+names.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join('');
+ el.value=names.includes(current)?current:'All';
+}
 function campaignFilterRows(){
  const term=($('#tableSearch').value||'').toLowerCase().trim();
+ const advertiser=$('#advertiserFilter')?.value||'All';
  const status=$('#statusFilter').value, health=$('#healthFilter').value;
- return scopeData().filter(r=>(status==='All'||r.status===status)&&(health==='All'||r.health===health)&&(!term||`${r.cid} ${r.campaign} ${r.advertiser}`.toLowerCase().includes(term)));
+ return scopeData().filter(r=>(advertiser==='All'||r.advertiser===advertiser)&&(status==='All'||r.status===status)&&(health==='All'||r.health===health)&&(!term||`${r.cid} ${r.campaign} ${r.advertiser}`.toLowerCase().includes(term)));
 }
 function renderCampaignTable(){
  const rows=campaignFilterRows();
@@ -2102,7 +2110,7 @@ $('#historyClearFilters').addEventListener('click',()=>{$('#historyQuarterFilter
 $$('.nav button').forEach(b=>b.addEventListener('click',()=>showView(b.dataset.view)));
 $('#mobileMenu').addEventListener('click',()=>$('#sidebar').classList.toggle('open'));
 $('#globalAdvertiser').addEventListener('change',renderAll);
-$('#tableSearch').addEventListener('input',renderCampaignTable);$('#statusFilter').addEventListener('change',renderCampaignTable);$('#healthFilter').addEventListener('change',renderCampaignTable);
+$('#tableSearch').addEventListener('input',renderCampaignTable);$('#advertiserFilter').addEventListener('change',renderCampaignTable);$('#statusFilter').addEventListener('change',renderCampaignTable);$('#healthFilter').addEventListener('change',renderCampaignTable);
 ['forecastSearch','forecastStatusFilter','forecastPlanFilter','forecastSort'].forEach(id=>{const el=$('#'+id);if(el)el.addEventListener(id==='forecastSearch'?'input':'change',renderForecast)});
 $$('th[data-sort]').forEach(th=>th.addEventListener('click',()=>{const k=th.dataset.sort;sortState.dir=sortState.key===k?-sortState.dir:1;sortState.key=k;renderCampaignTable()}));
 bindPerformanceUploadInput($('#csvUpload'));
@@ -2208,15 +2216,39 @@ updateModeChrome();
     return true;
   };
 
+  async function loadForecastSlackSetting() {
+    const { data, error } = await client
+      .from('hub_settings')
+      .select('setting_value')
+      .eq('setting_key','forecast_slack_notifications')
+      .maybeSingle();
+    if(error) throw error;
+    const value = data?.setting_value;
+    const enabled = (value && typeof value === 'object' && !Array.isArray(value)) ? value.enabled !== false : true;
+    renderForecastSlackSetting(enabled,{disabled:false});
+    return enabled;
+  }
+
+  async function saveForecastSlackSetting(enabled) {
+    if(!cloudReady) return false;
+    setSyncState('Saving Slack preference…','syncing');
+    const { data:{ user } } = await client.auth.getUser();
+    const { error } = await client.from('hub_settings').upsert({
+      setting_key: 'forecast_slack_notifications',
+      setting_value: { enabled: enabled !== false },
+      updated_at: new Date().toISOString(),
+      updated_by: user?.id || null
+    }, { onConflict:'setting_key' });
+    if(error) { setSyncState('Slack preference save failed','error'); throw error; }
+    setSyncState('Slack preference saved');
+    return true;
+  }
+
   async function loadSnapshots() {
     const { data, error } = await client.from('dashboard_snapshots').select('dataset,payload,uploaded_at,source_filename');
     if(error) throw error;
     const map = Object.fromEntries((data || []).map(row => [row.dataset,row]));
-    const slackSettingPayload = map.forecast_slack_settings?.payload;
-    const slackEnabled = (slackSettingPayload && typeof slackSettingPayload === 'object' && !Array.isArray(slackSettingPayload))
-      ? slackSettingPayload.enabled !== false
-      : true;
-    renderForecastSlackSetting(slackEnabled,{disabled:false});
+    await loadForecastSlackSetting();
     if(map.performance && Array.isArray(map.performance.payload) && map.performance.payload.length) {
       rawData = map.performance.payload;
       performanceUploadStamp = cloudStamp(map.performance.uploaded_at);
@@ -2440,7 +2472,7 @@ updateModeChrome();
     forecastSlackToggle.disabled = true;
     renderForecastSlackSetting(forecastSlackEnabled,{disabled:true,message:'Saving Slack notification preference…'});
     try {
-      const saved = await window.saveDashboardSnapshot('forecast_slack_settings',{enabled:nextEnabled},'Forecast & Risk Slack notification setting');
+      const saved = await saveForecastSlackSetting(nextEnabled);
       if(saved===false) throw new Error('Supabase is not ready');
       renderForecastSlackSetting(nextEnabled,{disabled:false});
       toast(nextEnabled?'Slack Forecast & Risk notifications enabled':'Slack Forecast & Risk notifications paused');
