@@ -9,64 +9,30 @@
 <meta name="application-name" content="Avani Vendor Capacity Portal">
 <style>
 :root{
-  --bg:#050b19;
-  --bg2:#091229;
-  --panel:#0b1730;
-  --panel2:#101d3d;
-  --panel3:#162c27;
-  --line:rgba(132,166,255,.16);
-  --line2:rgba(132,166,255,.27);
-  --text:#f4f7ff;
-  --muted:#9eacc8;
-  --accent:#3b8cff;
-  --accent2:#a78bfa;
-  --cyan:#2ce4ff;
-  --amber:#ffc86a;
-  --red:#ff7c9b;
-  --purple:#b99cff;
-  --shadow:0 24px 80px rgba(0,0,0,.32);
-  --radius:20px;
-  --radius-sm:13px;
+  --bg:#050b19;--panel:#0b1730;--line:rgba(132,166,255,.16);--line2:rgba(132,166,255,.27);
+  --text:#f4f7ff;--muted:#9eacc8;--accent:#3b8cff;--accent2:#a78bfa;--cyan:#2ce4ff;
+  --green:#65dfb0;--red:#ff7c9b;--shadow:0 24px 80px rgba(0,0,0,.32);--radius:20px;
 }
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
-  margin:0;
-  min-height:100vh;
-  background:
-    radial-gradient(circle at 82% 10%,rgba(139,92,246,.22),transparent 30%),
-    radial-gradient(circle at 14% 86%,rgba(35,135,255,.18),transparent 34%),
-    radial-gradient(circle at 52% 44%,rgba(44,228,255,.07),transparent 34%),
-    var(--bg);
-  color:var(--text);
-  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  font-size:14px;
-  line-height:1.45;
-}
-button,input,textarea{font:inherit}
-button{cursor:pointer}
-button:disabled{cursor:wait;opacity:.58}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;min-height:100vh;background:radial-gradient(circle at 82% 10%,rgba(139,92,246,.22),transparent 30%),radial-gradient(circle at 14% 86%,rgba(35,135,255,.18),transparent 34%),radial-gradient(circle at 52% 44%,rgba(44,228,255,.07),transparent 34%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;line-height:1.45}
+button,input,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:wait;opacity:.58}
 .shell{width:min(1180px,calc(100% - 32px));margin:0 auto;padding:28px 0 58px}
 .topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:12px 0 26px;border-bottom:1px solid var(--line)}
-.brand{display:flex;gap:12px;align-items:center}
-.brandmark{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;overflow:hidden;background:transparent;border:1px solid rgba(126,171,255,.30);box-shadow:0 10px 30px rgba(38,92,255,.16),0 0 30px rgba(138,92,255,.10)}.brandmark img{width:100%;height:100%;display:block;object-fit:cover;border-radius:14px}
-.brandcopy strong{display:block;font-size:14px;letter-spacing:.12em}.brandcopy span{display:block;color:var(--muted);font-size:11px;margin-top:2px}
-.period{text-align:right;color:var(--muted);font-size:11px}.period strong{display:block;color:var(--accent2);font-size:12px;margin-top:3px}
-.hero{padding:42px 0 25px}.eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:800}.hero h1{font-size:38px;line-height:1.06;letter-spacing:-.045em;margin:8px 0 10px;background:linear-gradient(90deg,#f7fbff 0%,#b9d7ff 44%,#b8a6ff 76%,#8a5cff 100%);-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{max-width:780px;color:var(--muted);font-size:14px;line-height:1.7;margin:0}
-.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 20px}
-.card{background:linear-gradient(145deg,rgba(17,31,67,.94),rgba(10,20,46,.96));border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 14px 42px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.025)}
+.brand{display:flex;gap:12px;align-items:center}.brandmark{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;overflow:hidden;background:transparent;border:1px solid rgba(126,171,255,.30);box-shadow:0 10px 30px rgba(38,92,255,.16),0 0 30px rgba(138,92,255,.10)}.brandmark img{width:100%;height:100%;display:block;object-fit:cover;border-radius:14px}
+.brandcopy strong{display:block;font-size:14px;letter-spacing:.12em}.brandcopy span{display:block;color:var(--muted);font-size:11px;margin-top:2px}.period{text-align:right;color:var(--muted);font-size:11px}.period strong{display:block;color:var(--accent2);font-size:12px;margin-top:3px}
+.hero{padding:42px 0 25px}.eyebrow{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:800}.hero h1{font-size:38px;line-height:1.06;letter-spacing:-.045em;margin:8px 0 10px;background:linear-gradient(90deg,#f7fbff 0%,#b9d7ff 44%,#b8a6ff 76%,#8a5cff 100%);-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{max-width:800px;color:var(--muted);font-size:14px;line-height:1.7;margin:0}
+.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 20px}.card{background:linear-gradient(145deg,rgba(17,31,67,.94),rgba(10,20,46,.96));border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 14px 42px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.025)}
 .kpi{padding:17px;min-height:108px;position:relative;overflow:hidden}.kpi:after{content:"";position:absolute;width:78px;height:78px;border-radius:50%;right:-25px;top:-25px;background:linear-gradient(135deg,rgba(35,135,255,.16),rgba(138,92,255,.14))}.kpi span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.08em;font-weight:750}.kpi strong{display:block;font-size:25px;margin-top:10px;letter-spacing:-.03em;position:relative;z-index:1}.kpi small{display:block;color:var(--muted);font-size:10px;margin-top:4px;position:relative;z-index:1}
-.list{display:grid;gap:14px}
-.campaign{padding:16px}.campaign-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:start}.campaign-metrics{display:grid;grid-template-columns:repeat(2,minmax(126px,150px));gap:8px}.campaign h3{margin:5px 0 3px;font-size:16px;letter-spacing:-.01em}.campaign p{margin:0;color:var(--muted);font-size:10px}.booked{padding:9px 11px;border:1px solid var(--line);background:rgba(6,14,36,.62);border-radius:12px;text-align:right}.booked span,.booked small{display:block;color:var(--muted);font-size:8px}.booked strong{display:block;font-size:19px;color:var(--accent2);margin:2px 0}.delivered-metric strong{color:var(--cyan)}.response-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:9px}.field{display:grid;gap:5px}.field.wide{grid-column:auto}.field>span{font-size:9px;color:#cfdbf5;font-weight:700}.field i{color:var(--muted);font-style:normal;font-weight:500}
-input,textarea{width:100%;border:1px solid var(--line2);background:rgba(7,16,40,.90);color:var(--text);border-radius:10px;padding:9px 11px;outline:none}
-input:focus,textarea:focus{border-color:rgba(72,139,255,.68);box-shadow:0 0 0 3px rgba(59,140,255,.10)}
-textarea{min-height:52px;resize:vertical}.number-wrap{position:relative}.number-wrap b{position:absolute;left:11px;top:6px;color:var(--accent);font-size:17px}.number-wrap input{padding-left:28px;font-weight:800}.campaign-foot{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}.zero{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:10px}.zero input{width:auto}.confirmation-value{min-height:38px;display:flex;align-items:center;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.025);color:var(--muted);font-size:11px}.status{font-size:9px;color:var(--accent2)}
-.submitbar{position:sticky;bottom:16px;margin-top:18px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:16px;backdrop-filter:blur(16px);z-index:10}.submitbar p{margin:0;color:var(--muted);font-size:11px}.btn{border:1px solid rgba(111,141,255,.58);background:linear-gradient(90deg,#2387ff,#6f6df8 58%,#8a5cff);color:#fff;border-radius:12px;padding:12px 18px;font-weight:800;white-space:nowrap;box-shadow:0 10px 28px rgba(53,99,255,.22)}.btn.secondary{background:rgba(15,29,63,.86);color:var(--text);border-color:var(--line2);box-shadow:none}
+.list{display:grid;gap:14px}.campaign{padding:16px}.campaign-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:start}.campaign-metrics{display:grid;grid-template-columns:repeat(2,minmax(126px,150px));gap:8px}.campaign h3{margin:5px 0 3px;font-size:16px;letter-spacing:-.01em}.campaign p{margin:0;color:var(--muted);font-size:10px}.mock-description{margin-top:6px!important;color:#c1cce2!important}.booked{padding:9px 11px;border:1px solid var(--line);background:rgba(6,14,36,.62);border-radius:12px;text-align:right}.booked span,.booked small{display:block;color:var(--muted);font-size:8px}.booked strong{display:block;font-size:19px;color:var(--accent2);margin:2px 0}.delivered-metric strong{color:var(--cyan)}
+.response-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:9px}.field{display:grid;gap:5px}.field.wide{grid-column:1/-1}.field>span{font-size:9px;color:#cfdbf5;font-weight:700}.field i{color:var(--muted);font-style:normal;font-weight:500}.section-label{margin-top:15px;font-size:9px;text-transform:uppercase;letter-spacing:.13em;font-weight:800;color:var(--accent2)}
+input,textarea{width:100%;border:1px solid var(--line2);background:rgba(7,16,40,.90);color:var(--text);border-radius:10px;padding:9px 11px;outline:none}input:focus,textarea:focus{border-color:rgba(72,139,255,.68);box-shadow:0 0 0 3px rgba(59,140,255,.10)}textarea{min-height:60px;resize:vertical}.number-wrap{position:relative}.number-wrap b{position:absolute;left:11px;top:6px;color:var(--accent);font-size:17px}.number-wrap input{padding-left:28px;font-weight:800}.confirmation-value{min-height:38px;display:flex;align-items:center;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.025);color:var(--muted);font-size:11px}
+.choice{display:flex;gap:8px;flex-wrap:wrap}.choice label{display:flex;align-items:center;gap:7px;border:1px solid var(--line2);border-radius:10px;padding:9px 13px;background:rgba(7,16,40,.7);color:#dce6fb}.choice input{width:auto}.reason{display:none}.reason.show{display:grid}.fulfillment-copy{padding:10px 11px;border:1px solid rgba(101,223,176,.18);border-radius:10px;background:rgba(101,223,176,.05);color:#c8e7dc;font-size:10px}
+.zero{display:flex;gap:8px;align-items:center;color:var(--muted);font-size:10px}.zero input{width:auto}.no-action{margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:11px;background:rgba(255,255,255,.025);color:var(--muted);font-size:10px}.campaign-foot{display:flex;justify-content:flex-end;gap:12px;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}.status{font-size:9px;color:var(--accent2)}
+.submitbar{position:sticky;bottom:16px;margin-top:18px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:16px;backdrop-filter:blur(16px);z-index:10}.submitbar p{margin:0;color:var(--muted);font-size:11px}.btn{border:1px solid rgba(111,141,255,.58);background:linear-gradient(90deg,#2387ff,#6f6df8 58%,#8a5cff);color:#fff;border-radius:12px;padding:12px 18px;font-weight:800;white-space:nowrap;box-shadow:0 10px 28px rgba(53,99,255,.22)}
 .state{padding:46px 24px;text-align:center}.state-mark{width:56px;height:56px;margin:0 auto 14px;border-radius:16px;display:grid;place-items:center;border:1px solid var(--line2);background:rgba(59,140,255,.10);color:#9fbaff;font-size:24px}.state h2{margin:0 0 8px;font-size:22px}.state p{max-width:580px;margin:0 auto;color:var(--muted);line-height:1.6}.spinner{width:28px;height:28px;border-radius:50%;border:3px solid rgba(59,140,255,.18);border-top-color:#8a5cff;margin:18px auto 0;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
-.toast{position:fixed;right:22px;bottom:22px;z-index:40;padding:12px 16px;border-radius:12px;background:#112452;border:1px solid rgba(93,132,255,.42);box-shadow:var(--shadow);opacity:0;transform:translateY(12px);transition:.2s;pointer-events:none;max-width:min(420px,calc(100vw - 44px))}.toast.show{opacity:1;transform:none}.toast.error{background:#321c1c;border-color:rgba(255,124,124,.35);color:#ffd9d9}
-.footer{padding:26px 0 0;color:#71877f;font-size:10px;text-align:center}
-@media(max-width:760px){.shell{width:min(100% - 20px,1180px)}.topbar{align-items:flex-start}.period{text-align:right}.hero{padding-top:30px}.hero h1{font-size:30px}.summary{grid-template-columns:1fr}.campaign-head{grid-template-columns:1fr}.campaign-metrics{grid-template-columns:1fr 1fr}.booked{text-align:left}.response-grid{grid-template-columns:1fr}.field.wide{grid-column:auto}.campaign-foot,.submitbar{align-items:flex-start;flex-direction:column}.btn{width:100%}}
-.section-label{margin-top:13px;font-size:9px;text-transform:uppercase;letter-spacing:.13em;font-weight:800;color:var(--accent2)}.section-label-space{margin-top:16px}.acceleration-grid{padding-bottom:0}select{width:100%;border:1px solid var(--line2);background:rgba(6,14,36,.8);color:var(--text);border-radius:11px;padding:11px 12px;outline:none;font:inherit}</style>
+.toast{position:fixed;right:22px;bottom:22px;z-index:40;padding:12px 16px;border-radius:12px;background:#112452;border:1px solid rgba(93,132,255,.42);box-shadow:var(--shadow);opacity:0;transform:translateY(12px);transition:.2s;pointer-events:none;max-width:min(420px,calc(100vw - 44px))}.toast.show{opacity:1;transform:none}.toast.error{background:#321c1c;border-color:rgba(255,124,124,.35);color:#ffd9d9}.footer{padding:26px 0 0;color:#71877f;font-size:10px;text-align:center}
+@media(max-width:760px){.shell{width:min(100% - 20px,1180px)}.topbar{align-items:flex-start}.hero{padding-top:30px}.hero h1{font-size:30px}.summary{grid-template-columns:1fr}.campaign-head{grid-template-columns:1fr}.campaign-metrics{grid-template-columns:1fr 1fr}.booked{text-align:left}.response-grid{grid-template-columns:1fr}.field.wide{grid-column:auto}.submitbar{align-items:flex-start;flex-direction:column}.btn{width:100%}}
+</style>
 </head>
 <body>
 <main class="shell">
@@ -80,17 +46,12 @@ textarea{min-height:52px;resize:vertical}.number-wrap{position:relative}.number-
 
   <section class="hero">
     <span class="eyebrow">CAPACITY CHECK-IN</span>
-    <h1>Confirm frontload and incremental capacity</h1>
-    <p>Review your active campaigns, confirm how many booked leads you can frontload for the current month, and share any additional capacity beyond booked volume. You can return to this same secure link during the month to revise your latest response.</p>
+    <h1>Confirm delivery status and available capacity</h1>
+    <p>Review your active campaigns and provide the requested delivery or capacity update. The questions shown automatically adjust based on campaign timing and campaign type. You can return to this same secure link during the month to revise your latest response.</p>
   </section>
 
   <div id="app">
-    <section class="card state">
-      <div class="state-mark">A</div>
-      <h2>Loading your campaigns</h2>
-      <p>Connecting securely to the latest Syndication Delivery source.</p>
-      <div class="spinner"></div>
-    </section>
+    <section class="card state"><div class="state-mark">A</div><h2>Loading your campaigns</h2><p>Connecting securely to the latest Syndication Delivery source.</p><div class="spinner"></div></section>
   </div>
 
   <div class="footer">Avani Media · Vendor Capacity Management</div>
@@ -110,51 +71,38 @@ textarea{min-height:52px;resize:vertical}.number-wrap{position:relative}.number-
   function esc(value='') {
     return String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
   }
-
-  function number(value) {
-    return Number(value || 0).toLocaleString();
-  }
-
+  function number(value) { return Number(value || 0).toLocaleString(); }
   function monthLabel(value) {
     if (!value) return '';
     return new Intl.DateTimeFormat('en-US', {month:'long', year:'numeric', timeZone:'UTC'}).format(new Date(value + 'T00:00:00Z'));
   }
-
   function formatDateOnly(value) {
     if (!value) return '—';
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return '—';
-    return new Intl.DateTimeFormat('en-US', {
-      month:'long', day:'numeric', year:'numeric'
-    }).format(date);
+    return new Intl.DateTimeFormat('en-US', {month:'long', day:'numeric', year:'numeric'}).format(date);
   }
-
   function readToken() {
     const params = new URLSearchParams(location.search);
     const queryToken = params.get('token');
     const hash = location.hash.startsWith('#') ? location.hash.slice(1) : location.hash;
     const hashParams = new URLSearchParams(hash);
-    const hashToken = hashParams.get('token');
-    return hashToken || queryToken || '';
+    return hashParams.get('token') || queryToken || '';
   }
-
   function scrubQueryToken() {
     const params = new URLSearchParams(location.search);
     if (!params.has('token')) return;
     const token = params.get('token');
     params.delete('token');
     const query = params.toString();
-    const next = location.pathname + (query ? '?' + query : '') + '#token=' + encodeURIComponent(token || '');
-    history.replaceState(null, '', next);
+    history.replaceState(null, '', location.pathname + (query ? '?' + query : '') + '#token=' + encodeURIComponent(token || ''));
   }
-
   function toast(message, type='') {
     toastEl.textContent = message;
     toastEl.className = 'toast show' + (type ? ' ' + type : '');
     clearTimeout(window.__capacityToastTimer);
     window.__capacityToastTimer = setTimeout(() => toastEl.className = 'toast', 3500);
   }
-
   function state(title, copy, mark='A') {
     app.innerHTML = `<section class="card state"><div class="state-mark">${esc(mark)}</div><h2>${esc(title)}</h2><p>${esc(copy)}</p></section>`;
   }
@@ -162,10 +110,54 @@ textarea{min-height:52px;resize:vertical}.number-wrap{position:relative}.number-
   function campaignCard(row) {
     const current = row.current || {};
     const capacity = Number(current.declared_capacity || 0);
+    const frontload = Number(current.delivery_acceleration_leads || 0);
     const revisionNo = Number(current.revision_no || 0);
+    const currentDelivered = Number(row.current_delivered ?? row.delivered ?? 0);
+    const bookedVolume = Number(row.booked_volume ?? row.contract_goal ?? row.goal ?? 0);
     const status = current.updated_at
       ? (revisionNo > 1 ? `Revised · ${new Date(current.updated_at).toLocaleDateString()}` : 'Response saved')
       : 'Not yet submitted';
+
+    const frontloadSection = row.frontload_eligible ? `
+      <div class="section-label">Delivery Acceleration</div>
+      <div class="response-grid">
+        <label class="field">
+          <span>Leads you can frontload for <span class="target-month">this month</span></span>
+          <div class="number-wrap"><b>+</b><input inputmode="numeric" min="0" step="1" type="number" class="accel-leads" value="${frontload}" aria-label="Frontload leads"></div>
+        </label>
+        <div class="field"><span>Confirmed on</span><div class="confirmation-value">${current.updated_at ? esc(new Date(current.updated_at).toLocaleDateString()) : 'Will be recorded when submitted'}</div></div>
+      </div>` : `<input type="hidden" class="accel-leads" value="0">`;
+
+    const fulfillmentValue = current.on_track_to_fulfill === true ? 'yes' : current.on_track_to_fulfill === false ? 'no' : '';
+    const fulfillmentSection = row.fulfillment_question_eligible ? `
+      <div class="section-label">Fulfillment Check</div>
+      <div class="response-grid">
+        <div class="field wide fulfillment-block">
+          <span>On Track to Fulfill by End Date?</span>
+          <div class="fulfillment-copy">Confirm whether the remaining booked volume is on track to be completed by ${esc(row.end_date || 'the campaign end date')}.</div>
+          <div class="choice">
+            <label><input type="radio" name="track-${esc(row.contract_key)}" value="yes" ${fulfillmentValue === 'yes' ? 'checked' : ''}> Yes</label>
+            <label><input type="radio" name="track-${esc(row.contract_key)}" value="no" ${fulfillmentValue === 'no' ? 'checked' : ''}> No</label>
+          </div>
+        </div>
+        <label class="field wide reason ${fulfillmentValue === 'no' ? 'show' : ''}">
+          <span>Reason</span>
+          <textarea class="fulfillment-note" maxlength="600" placeholder="Please provide the reason">${esc(current.fulfillment_note || '')}</textarea>
+        </label>
+      </div>` : `<input type="hidden" class="fulfillment-note" value="">`;
+
+    const incrementalSection = row.incremental_eligible ? `
+      <div class="section-label">Incremental Opportunity</div>
+      <div class="response-grid">
+        <label class="field">
+          <span>Additional capacity beyond booked volume</span>
+          <div class="number-wrap"><b>+</b><input inputmode="numeric" min="0" step="1" type="number" class="cap" value="${capacity}" aria-label="Additional capacity"></div>
+        </label>
+        <div class="field"><span>Confirmed on</span><div class="confirmation-value">${current.updated_at ? esc(new Date(current.updated_at).toLocaleDateString()) : 'Will be recorded when submitted'}</div></div>
+        <label class="zero wide"><input type="checkbox" class="none" ${capacity === 0 && current.updated_at ? 'checked' : ''}> No additional capacity for this campaign</label>
+      </div>` : `<input type="hidden" class="cap" value="0">`;
+
+    const hasPrimaryQuestion = Boolean(row.frontload_eligible || row.incremental_eligible || row.fulfillment_question_eligible);
 
     return `<article class="campaign card" data-contract="${esc(row.contract_key)}">
       <div class="campaign-head">
@@ -173,75 +165,80 @@ textarea{min-height:52px;resize:vertical}.number-wrap{position:relative}.number-
           <span class="eyebrow">${esc(row.advertiser)}</span>
           <h3>${esc(row.campaign_name)}</h3>
           <p>Campaign ID ${esc(row.cid)} · Active through ${esc(row.end_date || '—')}</p>
+          ${row.mock_description ? `<p class="mock-description">${esc(row.mock_description)}</p>` : ''}
         </div>
         <div class="campaign-metrics">
-          <div class="booked">
-            <span>Current booked volume</span>
-            <strong>${number(row.goal)}</strong>
-            <small>Your current publisher allocation</small>
-          </div>
-          <div class="booked delivered-metric">
-            <span>Current delivered</span>
-            <strong>${number(row.delivered)}</strong>
-            <small>Delivered to date</small>
-          </div>
+          <div class="booked"><span>Current booked volume</span><strong>${number(bookedVolume)}</strong><small>Your current publisher allocation</small></div>
+          <div class="booked delivered-metric"><span>Current Delivered</span><strong>${number(currentDelivered)}</strong><small>Valid leads only</small></div>
         </div>
       </div>
-      <div class="section-label">Delivery Acceleration</div>
-      <div class="response-grid acceleration-grid">
-        <label class="field">
-          <span>Leads you can frontload for <span class="target-month">this month</span></span>
-          <div class="number-wrap"><b>+</b><input inputmode="numeric" min="0" step="1" type="number" class="accel-leads" value="${Number(current.delivery_acceleration_leads || 0)}" aria-label="Frontload leads"></div>
-        </label>
-        <div class="field confirmation-field">
-          <span>Confirmed on</span>
-          <div class="confirmation-value">${current.updated_at ? esc(new Date(current.updated_at).toLocaleDateString()) : 'Will be recorded when submitted'}</div>
-        </div>
-      </div>
-      <div class="section-label section-label-space">Incremental Opportunity</div>
+      ${frontloadSection}
+      ${fulfillmentSection}
+      ${incrementalSection}
+      ${hasPrimaryQuestion ? '' : '<div class="no-action">No capacity or fulfillment action is required for this campaign this month.</div>'}
+      <div class="section-label">Additional Context</div>
       <div class="response-grid">
-        <label class="field">
-          <span>Additional capacity beyond booked volume</span>
-          <div class="number-wrap"><b>+</b><input inputmode="numeric" min="0" step="1" type="number" class="cap" value="${capacity}" aria-label="Additional capacity"></div>
-        </label>
-        <div class="field confirmation-field">
-          <span>Confirmed on</span>
-          <div class="confirmation-value">${current.updated_at ? esc(new Date(current.updated_at).toLocaleDateString()) : 'Will be recorded when submitted'}</div>
-        </div>
-        <label class="field wide">
-          <span>Conditions / restrictions <i>Optional</i></span>
-          <input type="text" class="conditions" maxlength="300" value="${esc(current.conditions || '')}" placeholder="GEO, segment, timing, or other conditions">
-        </label>
-        <label class="field wide">
-          <span>Notes <i>Optional</i></span>
-          <textarea class="notes" maxlength="600" placeholder="Anything Avani should know about this capacity">${esc(current.notes || '')}</textarea>
-        </label>
+        <label class="field wide"><span>Conditions / restrictions <i>Optional</i></span><input type="text" class="conditions" maxlength="300" value="${esc(current.conditions || '')}" placeholder="GEO, segment, timing, or other conditions"></label>
+        <label class="field wide"><span>Notes <i>Optional</i></span><textarea class="notes" maxlength="600" placeholder="Anything Avani should know">${esc(current.notes || '')}</textarea></label>
       </div>
-      <div class="campaign-foot">
-        <label class="zero"><input type="checkbox" class="none" ${capacity === 0 && current.updated_at ? 'checked' : ''}> No additional capacity for this campaign</label>
-        <span class="status">${esc(status)}</span>
-      </div>
+      <div class="campaign-foot"><span class="status">${esc(status)}</span></div>
     </article>`;
   }
 
   function bindCampaign(card) {
     const none = card.querySelector('.none');
     const cap = card.querySelector('.cap');
-    const accelLeads = card.querySelector('.accel-leads');
-    const sync = () => {
-      if (none.checked) {
-        cap.value = '0';
-        cap.disabled = true;
-      } else {
-        cap.disabled = false;
-      }
-    };
-    none.addEventListener('change', sync);
-    cap.addEventListener('input', () => {
-      if (Number(cap.value) > 0) none.checked = false;
+    if (none && cap) {
+      const sync = () => {
+        if (none.checked) { cap.value = '0'; cap.disabled = true; }
+        else { cap.disabled = false; }
+      };
+      none.addEventListener('change', sync);
+      cap.addEventListener('input', () => { if (Number(cap.value) > 0) none.checked = false; sync(); });
       sync();
+    }
+
+    card.querySelectorAll('.fulfillment-block input[type="radio"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        const reason = card.querySelector('.reason');
+        if (reason) reason.classList.toggle('show', radio.value === 'no' && radio.checked);
+      });
     });
-    sync();
+  }
+
+  function buildSubmissionItems() {
+    const cards = [...document.querySelectorAll('.campaign')];
+    for (const card of cards) {
+      const fulfillment = card.querySelector('.fulfillment-block');
+      if (fulfillment) {
+        const selected = fulfillment.querySelector('input[type="radio"]:checked');
+        if (!selected) {
+          card.scrollIntoView({behavior:'smooth', block:'center'});
+          throw new Error('Please answer “On Track to Fulfill by End Date?” for each applicable campaign.');
+        }
+        if (selected.value === 'no') {
+          const note = card.querySelector('.fulfillment-note')?.value.trim() || '';
+          if (!note) {
+            card.querySelector('.reason')?.classList.add('show');
+            card.querySelector('.fulfillment-note')?.focus();
+            throw new Error('Please provide a reason when the campaign is not on track to fulfill by end date.');
+          }
+        }
+      }
+    }
+
+    return cards.map(card => {
+      const selected = card.querySelector('.fulfillment-block input[type="radio"]:checked');
+      return {
+        contract_key: card.dataset.contract,
+        declared_capacity: Math.max(0, Math.floor(Number(card.querySelector('.cap')?.value || 0))),
+        delivery_acceleration_leads: Math.max(0, Math.floor(Number(card.querySelector('.accel-leads')?.value || 0))),
+        on_track_to_fulfill: selected ? selected.value === 'yes' : null,
+        fulfillment_note: card.querySelector('.fulfillment-note')?.value.trim() || '',
+        conditions: card.querySelector('.conditions')?.value.trim() || '',
+        notes: card.querySelector('.notes')?.value.trim() || ''
+      };
+    });
   }
 
   async function loadPortal(token) {
@@ -265,38 +262,25 @@ textarea{min-height:52px;resize:vertical}.number-wrap{position:relative}.number-
         <div class="kpi card"><span>Last submitted</span><strong>${data.last_submitted_at ? formatDateOnly(data.last_submitted_at) : '—'}</strong><small>${data.last_submitted_at ? 'Most recent confirmation' : 'No submission yet'}</small></div>
       </section>
       <section class="list">${campaigns.map(campaignCard).join('')}</section>
-      <div class="submitbar card">
-        <p>Submitting updates all campaigns together. You can revise this response later during ${esc(monthLabel(data.period_month))}.</p>
-        <button class="btn" id="submitCapacity">Submit Monthly Capacity</button>
-      </div>`;
+      <div class="submitbar card"><p>Submitting updates all campaigns together. You can revise this response later during ${esc(monthLabel(data.period_month))}.</p><button class="btn" id="submitCapacity">Submit Monthly Capacity</button></div>`;
 
-    document.querySelectorAll('.target-month').forEach(el=>el.textContent=monthLabel(data.period_month));
+    document.querySelectorAll('.target-month').forEach(el => el.textContent = monthLabel(data.period_month));
     document.querySelectorAll('.campaign').forEach(bindCampaign);
 
     document.getElementById('submitCapacity').addEventListener('click', async () => {
       const button = document.getElementById('submitCapacity');
-      const items = [...document.querySelectorAll('.campaign')].map(card => ({
-        contract_key: card.dataset.contract,
-        declared_capacity: Math.max(0, Math.floor(Number(card.querySelector('.cap').value || 0))),
-        incremental_confirmed_date: null,
-        delivery_acceleration_leads: Math.max(0, Math.floor(Number(card.querySelector('.accel-leads').value || 0))),
-        conditions: card.querySelector('.conditions').value.trim(),
-        notes: card.querySelector('.notes').value.trim()
-      }));
-
-      button.disabled = true;
-      button.textContent = 'Saving…';
       try {
+        const items = buildSubmissionItems();
+        button.disabled = true;
+        button.textContent = 'Saving…';
         const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({token, items})
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({token, items})
         });
         const result = await response.json().catch(() => ({}));
         if (!response.ok || !result.ok) throw new Error(result.error || 'Unable to save your capacity response.');
-        toast(result.changed_count
-          ? `Saved · ${result.changed_count} campaign${result.changed_count === 1 ? '' : 's'} updated`
-          : 'Saved · no changes');
+        toast(result.changed_count ? `Saved · ${result.changed_count} campaign${result.changed_count === 1 ? '' : 's'} updated` : 'Saved · no changes');
         await loadPortal(token);
       } catch (error) {
         toast(error.message || 'Unable to save your capacity response.', 'error');
@@ -315,9 +299,8 @@ textarea{min-height:52px;resize:vertical}.number-wrap{position:relative}.number-
       publisherLabel.textContent = 'Secure access required';
       return;
     }
-    try {
-      await loadPortal(token);
-    } catch (error) {
+    try { await loadPortal(token); }
+    catch (error) {
       state('Secure link unavailable', error.message || 'This vendor capacity link is invalid or has expired.', '🔒');
       publisherLabel.textContent = 'Access unavailable';
     }
