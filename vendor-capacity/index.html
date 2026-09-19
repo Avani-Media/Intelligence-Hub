@@ -120,13 +120,12 @@ textarea{min-height:52px;resize:vertical}.number-wrap{position:relative}.number-
     return new Intl.DateTimeFormat('en-US', {month:'long', year:'numeric', timeZone:'UTC'}).format(new Date(value + 'T00:00:00Z'));
   }
 
-  function formatDateTime(value) {
+  function formatDateOnly(value) {
     if (!value) return '—';
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return '—';
     return new Intl.DateTimeFormat('en-US', {
-      month:'short', day:'numeric', year:'numeric',
-      hour:'numeric', minute:'2-digit'
+      month:'long', day:'numeric', year:'numeric'
     }).format(date);
   }
 
@@ -263,7 +262,7 @@ textarea{min-height:52px;resize:vertical}.number-wrap{position:relative}.number-
       <section class="summary">
         <div class="kpi card"><span>Publisher</span><strong>${esc(data.publisher)}</strong><small>Secure vendor view</small></div>
         <div class="kpi card"><span>Active campaigns</span><strong>${campaigns.length}</strong><small>Campaigns assigned for review</small></div>
-        <div class="kpi card"><span>Last submitted</span><strong>${data.last_submitted_at ? formatDateTime(data.last_submitted_at) : '—'}</strong><small>${data.last_submitted_at ? 'Most recent confirmation' : 'No submission yet'}</small></div>
+        <div class="kpi card"><span>Last submitted</span><strong>${data.last_submitted_at ? formatDateOnly(data.last_submitted_at) : '—'}</strong><small>${data.last_submitted_at ? 'Most recent confirmation' : 'No submission yet'}</small></div>
       </section>
       <section class="list">${campaigns.map(campaignCard).join('')}</section>
       <div class="submitbar card">
