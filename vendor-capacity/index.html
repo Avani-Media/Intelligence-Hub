@@ -178,8 +178,8 @@ input,textarea{width:100%;border:1px solid var(--line2);background:rgba(7,16,40,
       ${hasPrimaryQuestion ? '' : '<div class="no-action">No capacity or fulfillment action is required for this campaign this month.</div>'}
       <div class="section-label">Additional Context</div>
       <div class="response-grid">
-        <label class="field wide"><span>Conditions / restrictions <i>Optional</i></span><input type="text" class="conditions" maxlength="300" value="${esc(current.conditions || '')}" placeholder="GEO, segment, timing, or other conditions"></label>
-        <label class="field wide"><span>Notes <i>Optional</i></span><textarea class="notes" maxlength="600" placeholder="Anything Avani should know">${esc(current.notes || '')}</textarea></label>
+        <input type="hidden" class="conditions" value="${esc(current.conditions || '')}">
+        <label class="field wide"><span>Vendor Notes <i>Optional</i></span><textarea class="notes" maxlength="600" placeholder="Anything Avani should know">${esc(current.notes || '')}</textarea></label>
       </div>
       <div class="campaign-foot"><span class="status">${esc(status)}</span></div>
     </article>`;
