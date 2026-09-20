@@ -129,12 +129,16 @@ input,textarea{width:100%;border:1px solid var(--line2);background:rgba(7,16,40,
       </div>` : `<input type="hidden" class="accel-leads" value="0">`;
 
     const fulfillmentValue = current.on_track_to_fulfill === true ? 'yes' : current.on_track_to_fulfill === false ? 'no' : '';
+    const fulfillmentLabel = String(row.fulfillment_question_label || 'On Track to Fulfill by End Date?');
+    const fulfillmentCopy = row.strict_allocation === true
+      ? 'Confirm whether the campaign remains on track to fulfill its required allocation.'
+      : `Confirm whether the remaining booked volume is on track to be completed by ${esc(row.end_date || 'the campaign end date')}.`;
     const fulfillmentSection = row.fulfillment_question_eligible ? `
       <div class="section-label">Fulfillment Check</div>
       <div class="response-grid">
         <div class="field wide fulfillment-block">
-          <span>On Track to Fulfill by End Date?</span>
-          <div class="fulfillment-copy">Confirm whether the remaining booked volume is on track to be completed by ${esc(row.end_date || 'the campaign end date')}.</div>
+          <span>${esc(fulfillmentLabel)}</span>
+          <div class="fulfillment-copy">${fulfillmentCopy}</div>
           <div class="choice">
             <label><input type="radio" name="track-${esc(row.contract_key)}" value="yes" ${fulfillmentValue === 'yes' ? 'checked' : ''}> Yes</label>
             <label><input type="radio" name="track-${esc(row.contract_key)}" value="no" ${fulfillmentValue === 'no' ? 'checked' : ''}> No</label>
@@ -159,7 +163,7 @@ input,textarea{width:100%;border:1px solid var(--line2);background:rgba(7,16,40,
 
     const hasPrimaryQuestion = Boolean(row.frontload_eligible || row.incremental_eligible || row.fulfillment_question_eligible);
 
-    return `<article class="campaign card" data-contract="${esc(row.contract_key)}">
+    return `<article class="campaign card" data-contract="${esc(row.contract_key)}" data-fulfillment-label="${esc(fulfillmentLabel)}">
       <div class="campaign-head">
         <div>
           <span class="eyebrow">${esc(row.advertiser)}</span>
@@ -214,14 +218,15 @@ input,textarea{width:100%;border:1px solid var(--line2);background:rgba(7,16,40,
         const selected = fulfillment.querySelector('input[type="radio"]:checked');
         if (!selected) {
           card.scrollIntoView({behavior:'smooth', block:'center'});
-          throw new Error('Please answer “On Track to Fulfill by End Date?” for each applicable campaign.');
+          const label = card.dataset.fulfillmentLabel || 'On Track to Fulfill by End Date?';
+          throw new Error(`Please answer “${label}” for each applicable campaign.`);
         }
         if (selected.value === 'no') {
           const note = card.querySelector('.fulfillment-note')?.value.trim() || '';
           if (!note) {
             card.querySelector('.reason')?.classList.add('show');
             card.querySelector('.fulfillment-note')?.focus();
-            throw new Error('Please provide a reason when the campaign is not on track to fulfill by end date.');
+            throw new Error('Please provide a reason when the campaign is not on track to fulfill.');
           }
         }
       }
