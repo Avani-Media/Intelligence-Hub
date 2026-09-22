@@ -1,0 +1,88 @@
+--- a/vendor-capacity/index.html
++++ b/vendor-capacity/index.html
+@@ -32,6 +32,17 @@
+ .state{padding:46px 24px;text-align:center}.state-mark{width:56px;height:56px;margin:0 auto 14px;border-radius:16px;display:grid;place-items:center;border:1px solid var(--line2);background:rgba(59,140,255,.10);color:#9fbaff;font-size:24px}.state h2{margin:0 0 8px;font-size:22px}.state p{max-width:580px;margin:0 auto;color:var(--muted);line-height:1.6}.spinner{width:28px;height:28px;border-radius:50%;border:3px solid rgba(59,140,255,.18);border-top-color:#8a5cff;margin:18px auto 0;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+ .toast{position:fixed;right:22px;bottom:22px;z-index:40;padding:12px 16px;border-radius:12px;background:#112452;border:1px solid rgba(93,132,255,.42);box-shadow:var(--shadow);opacity:0;transform:translateY(12px);transition:.2s;pointer-events:none;max-width:min(420px,calc(100vw - 44px))}.toast.show{opacity:1;transform:none}.toast.error{background:#321c1c;border-color:rgba(255,124,124,.35);color:#ffd9d9}.footer{padding:26px 0 0;color:#71877f;font-size:10px;text-align:center}
+ @media(max-width:760px){.shell{width:min(100% - 20px,1180px)}.topbar{align-items:flex-start}.hero{padding-top:30px}.hero h1{font-size:30px}.summary{grid-template-columns:1fr}.campaign-head{grid-template-columns:1fr}.campaign-metrics{grid-template-columns:1fr 1fr}.booked{text-align:left}.response-grid{grid-template-columns:1fr}.field.wide{grid-column:auto}.submitbar{align-items:flex-start;flex-direction:column}.btn{width:100%}}
++
++/* Portal Guide */
++.guide-trigger{display:inline-flex;align-items:center;gap:8px;margin-top:18px;padding:10px 15px;border:1px solid var(--line2);border-radius:11px;background:rgba(59,140,255,.12);color:var(--text);font-weight:700}
++.guide-trigger:hover{background:rgba(59,140,255,.22)}
++.guide-trigger:focus-visible,.portal-guide button:focus-visible,.portal-guide summary:focus-visible{outline:2px solid var(--cyan);outline-offset:4px}
++.portal-guide{width:min(720px,calc(100vw - 28px));max-height:85vh;max-height:85dvh;padding:0;border:1px solid var(--line2);border-radius:20px;background:linear-gradient(145deg,#112044,#0a142e);color:var(--text);box-shadow:var(--shadow)}
++.portal-guide::backdrop{background:rgba(2,6,17,.78)}
++.guide-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 24px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#101e3e;z-index:1}
++.guide-head h2{margin:0;font-size:23px;letter-spacing:-.02em}.guide-close{border:1px solid var(--line2);border-radius:9px;padding:8px 12px;background:transparent;color:var(--text)}
++.guide-body{padding:20px 24px 26px;line-height:1.65}.guide-body p{margin:0 0 14px;color:#c5d1e8}.guide-body strong{color:var(--text)}.guide-body ol,.guide-body ul{padding-left:22px;color:#c5d1e8}.guide-body li{margin:8px 0}.guide-body details{border-top:1px solid var(--line);padding:14px 0}.guide-body summary{cursor:pointer;font-weight:750;color:#c9baff}.guide-body details p{margin:12px 0 0}.guide-reminder{padding:15px 17px;border:1px solid rgba(44,228,255,.3);border-radius:12px;background:rgba(44,228,255,.06);margin-top:18px}
++@media(max-width:480px){.guide-head,.guide-body{padding:16px}.guide-head h2{font-size:21px}}
+ </style>
+ </head>
+ <body>
+@@ -48,6 +59,8 @@
+     <span class="eyebrow">CAPACITY CHECK-IN</span>
+     <h1>Confirm delivery status and available capacity</h1>
+     <p>Review your active campaigns and provide the requested delivery or capacity update. The questions shown automatically adjust based on campaign timing and campaign type. You can return to this same secure link during the month to revise your latest response.</p>
++
++    <button type="button" class="guide-trigger" id="portalGuideOpen" aria-haspopup="dialog" aria-controls="portalGuide"><span aria-hidden="true">?</span> Portal Guide</button>
+   </section>
+ 
+   <div id="app">
+@@ -318,5 +331,58 @@
+   });
+ })();
+ </script>
++
++<dialog class="portal-guide" id="portalGuide" aria-labelledby="portalGuideTitle">
++  <div class="guide-head"><h2 id="portalGuideTitle">Portal Guide</h2><button type="button" class="guide-close" id="portalGuideClose" autofocus>Close</button></div>
++  <div class="guide-body">
++    <p>Your monthly check-in for delivery status, early delivery opportunities, and additional capacity. Your link shows campaigns assigned to your company, using the latest published Syndication Delivery source.</p>
++    <details open><summary>Complete your monthly check-in</summary>
++      <ol>
++        <li>Check the month displayed and review every campaign. <strong>Current booked volume</strong> is your publisher allocation. <strong>Current Delivered</strong> counts all valid leads, including those not yet delivered to the client.</li>
++        <li>Enter frontload and incremental volumes where requested. Use whole numbers; enter <strong>0</strong> if none. For incremental volume, you can also select <strong>No additional capacity for this campaign</strong>.</li>
++        <li>Answer each <strong>On Track to Fulfill</strong> question shown. Select <strong>No</strong> if delivery is at risk and explain the reason.</li>
++        <li>Use <strong>Vendor Notes</strong> for timing, GEO or segment restrictions, dependencies, or other context.</li>
++        <li>Click <strong>Submit Monthly Capacity</strong> and wait for the saved confirmation. This submits <strong>all campaigns together</strong>.</li>
++      </ol>
++    </details>
++    <details><summary>Frontload vs. incremental volume</summary>
++      <p><strong>Frontload:</strong> leads from your existing booked allocation that you can deliver earlier, within the displayed month. Your total booking stays the same.</p>
++      <p><strong>Example:</strong> with 1,000 leads booked, delivering 200 of those leads earlier means entering <strong>200</strong> as frontload volume.</p>
++      <p><strong>Incremental:</strong> extra leads beyond your existing booked allocation. If you can support 1,200 against a booking of 1,000, enter <strong>200</strong> as additional capacity.</p>
++    </details>
++    <details><summary>Why questions vary by campaign</summary>
++      <ul>
++        <li><strong>Frontload</strong> is unavailable for single-month campaigns, campaigns in their final month, strict allocation campaigns, or fully fulfilled campaigns.</li>
++        <li><strong>Incremental Opportunity</strong> is unavailable for campaigns already identified as Incremental or Incre.</li>
++        <li><strong>Fulfillment checks</strong> appear for unfinished single-month or final-month campaigns, and unfinished campaigns with strict allocation requirements. Answer the allocation or end-date question displayed.</li>
++      </ul>
++    </details>
++    <details><summary>Revise a saved response</summary>
++      <p>Return to the <strong>same vendor link</strong> during the month, edit your response, and click <strong>Submit Monthly Capacity</strong> again. Your latest saved response is used for Avani’s review. Changes are not saved until you submit.</p>
++      <p>If campaign assignments changed while the page was open, refresh the portal, review the current campaigns, and submit again.</p>
++    </details>
++    <div class="guide-reminder"><strong>Incremental capacity requires Avani’s confirmation and client approval before a new campaign can be built.</strong></div>
++  </div>
++</dialog>
++<script id="portalGuideScript">
++(() => {
++  const guide = document.getElementById('portalGuide');
++  const open = document.getElementById('portalGuideOpen');
++  const close = document.getElementById('portalGuideClose');
++  let previousOverflow = '';
++  open.addEventListener('click', () => {
++    if (guide.open) return;
++    previousOverflow = document.body.style.overflow;
++    guide.showModal();
++    document.body.style.overflow = 'hidden';
++  });
++  close.addEventListener('click', () => guide.close());
++  guide.addEventListener('close', () => {
++    document.body.style.overflow = previousOverflow;
++    open.focus();
++  });
++})();
++</script>
++
+ </body>
+ </html>
