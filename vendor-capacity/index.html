@@ -34,8 +34,8 @@ input,textarea{width:100%;border:1px solid var(--line2);background:rgba(7,16,40,
 @media(max-width:760px){.shell{width:min(100% - 20px,1180px)}.topbar{align-items:flex-start}.hero{padding-top:30px}.hero h1{font-size:30px}.summary{grid-template-columns:1fr}.campaign-head{grid-template-columns:1fr}.campaign-metrics{grid-template-columns:1fr 1fr}.booked{text-align:left}.response-grid{grid-template-columns:1fr}.field.wide{grid-column:auto}.submitbar{align-items:flex-start;flex-direction:column}.btn{width:100%}}
 
 /* Portal Guide */
-.guide-trigger{display:inline-flex;align-items:center;gap:8px;margin-top:18px;padding:10px 15px;border:1px solid var(--line2);border-radius:11px;background:rgba(59,140,255,.12);color:var(--text);font-weight:700}
-.guide-trigger:hover{background:rgba(59,140,255,.22)}
+.guide-trigger{display:inline-flex;align-items:center;justify-content:center;margin-top:18px;min-height:58px;padding:16px 34px;max-width:100%;border:1px solid transparent;border-radius:24px;background:linear-gradient(115deg,#152345,#101a35) padding-box,linear-gradient(105deg,#2ce4ff 0%,#478fff 48%,#d34cff 100%) border-box;color:#fff;font-size:16px;font-weight:800;line-height:1.4;text-align:center}
+.guide-trigger:hover{background:linear-gradient(115deg,#1c2e56,#172242) padding-box,linear-gradient(105deg,#2ce4ff 0%,#478fff 48%,#d34cff 100%) border-box}
 .guide-trigger:focus-visible,.portal-guide button:focus-visible,.portal-guide summary:focus-visible{outline:2px solid var(--cyan);outline-offset:4px}
 .portal-guide{width:min(720px,calc(100vw - 28px));max-height:85vh;max-height:85dvh;padding:0;border:1px solid var(--line2);border-radius:20px;background:linear-gradient(145deg,#112044,#0a142e);color:var(--text);box-shadow:var(--shadow)}
 .portal-guide::backdrop{background:rgba(2,6,17,.78)}
@@ -60,7 +60,7 @@ input,textarea{width:100%;border:1px solid var(--line2);background:rgba(7,16,40,
     <h1>Confirm delivery status and available capacity</h1>
     <p>Review your active campaigns and provide the requested delivery or capacity update. The questions shown automatically adjust based on campaign timing and campaign type. You can return to this same secure link during the month to revise your latest response.</p>
 
-    <button type="button" class="guide-trigger" id="portalGuideOpen" aria-haspopup="dialog" aria-controls="portalGuide"><span aria-hidden="true">?</span> Portal Guide</button>
+    <button type="button" class="guide-trigger" id="portalGuideOpen" aria-haspopup="dialog" aria-controls="portalGuide">Portal Guide</button>
   </section>
 
   <div id="app">
