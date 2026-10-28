@@ -1,0 +1,73 @@
+/* Visual-only Revenue HQ trial. Disable this plugin to restore the prior palette. */
+body.revenue-hq-mode #rf-view .rf-table-wrap .rf-table {
+  --rf-month-bg: #263d54;
+  --rf-month-alt: #2b435b;
+  --rf-month-line: rgba(139, 176, 208, .24);
+}
+body.revenue-hq-mode #rf-view .rf-table-wrap .rf-table thead th:nth-child(-n+5) {
+  background: #223247 !important;
+  color: #d8e3f0 !important;
+}
+body.revenue-hq-mode #rf-view .rf-table-wrap .rf-table thead th:nth-child(n+6):not(:last-child) {
+  background: #36536f !important;
+  color: #f0f5fb !important;
+  border-right-color: var(--rf-month-line) !important;
+}
+body.revenue-hq-mode #rf-view .rf-table-wrap .rf-table thead th:last-child {
+  background: #3a4264 !important;
+  color: #f0effa !important;
+}
+body.revenue-hq-mode #rf-view .rf-table tbody tr:not(.rf-group) > td:nth-child(-n+5) {
+  background: #101b2a;
+}
+body.revenue-hq-mode #rf-view .rf-table tbody tr:nth-child(even):not(.rf-group) > td:nth-child(-n+5) {
+  background: #152233;
+}
+body.revenue-hq-mode #rf-view .rf-table tbody td.rf-month:not(.rf-quarter-total) {
+  background: var(--rf-month-bg) !important;
+  border-right-color: var(--rf-month-line);
+  border-bottom-color: rgba(139, 176, 208, .16);
+}
+body.revenue-hq-mode #rf-view .rf-table tbody tr:nth-child(even) > td.rf-month:not(.rf-quarter-total) {
+  background: var(--rf-month-alt) !important;
+}
+body.revenue-hq-mode #rf-view .rf-table tbody .rf-group > th:first-child {
+  background: #1c2d43;
+}
+body.revenue-hq-mode #rf-view .rf-table tbody th.rf-month-total {
+  background: #304b65 !important;
+  border-right-color: var(--rf-month-line);
+}
+body.revenue-hq-mode #rf-view .rf-table tbody td.rf-quarter-total,
+body.revenue-hq-mode #rf-view .rf-table tbody th.rf-quarter-total:not(.rf-month-total) {
+  background: #2d3451 !important;
+  border-left: 1px solid rgba(167, 178, 226, .28);
+}
+body.revenue-hq-mode #rf-view .rf-table tbody tr:nth-child(even) > td.rf-quarter-total {
+  background: #323a58 !important;
+}
+body.revenue-hq-mode #rf-view .rf-table .rf-money-input,
+body.revenue-hq-mode #rf-view .rf-table .rf-month-open,
+body.revenue-hq-mode #rf-view .rf-table .rf-quarter-forecast,
+body.revenue-hq-mode #rf-view .rf-table .rf-money-prefix {
+  color: #eaf0f7 !important;
+}
+body.revenue-hq-mode #rf-view .rf-table .rf-actual-mini span {
+  color: #a3d3c7 !important;
+}
+body.revenue-hq-mode #rf-view .rf-table .rf-actual-mini small {
+  color: #c2cfdf !important;
+}
+body.revenue-hq-mode #rf-view .rf-table td.rf-na,
+body.revenue-hq-mode #rf-view .rf-table .rf-month .rf-na {
+  color: #a7b7ca !important;
+}
+body.revenue-hq-mode #rf-view .rf-table .rf-reconcile-over {
+  background: #48252f;
+  border-color: #a9636e;
+  color: #f2c0c3;
+}
+body.revenue-hq-mode #rf-view .rf-table .rf-reconcile-over strong {
+  color: #f2b2b8;
+}
+/* Preserve the existing changed/conflict outlines, focus styles and alert semantics. */
