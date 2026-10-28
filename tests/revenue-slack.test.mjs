@@ -1,0 +1,12 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {handleRequest} from '../supabase/functions/revenue-hq-slack-check/handler.mjs';
+const envValues={SUPABASE_SERVICE_ROLE_KEY:'test-admin-key',REVENUE_HQ_SLACK_WEBHOOK_URL:'https://hooks.slack.com/services/TTEST/BTEST/NOT_A_REAL_SECRET'};
+const env=k=>envValues[k];
+const req=(action,token='test-admin-key')=>new Request('https://example.invalid/check',{method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:JSON.stringify({action})});
+test('unauthenticated calls never reach Slack',async()=>{const r=await handleRequest(req('test',''),env,()=>{throw Error('Unexpected request')});assert.equal(r.status,401)});
+test('status checks validate configuration without sending',async()=>{const r=await handleRequest(req('status'),env,()=>{throw Error('Unexpected request')});assert.deepEqual(await r.json(),{ok:true,configured:true,webhookValid:true,digestEnabled:false})});
+test('only a fixed clearly labeled test can be sent',async()=>{let sent;const r=await handleRequest(req('test'),env,async(url,options)=>{sent=JSON.parse(options.body);return new Response('ok')});assert.equal(r.status,200);assert.match(sent.text,/connection test/i);assert.match(sent.text,/daily digest is not enabled/i);assert.equal(sent.unfurl_links,false)});
+test('unknown actions cannot post arbitrary messages',async()=>{const r=await handleRequest(req('digest'),env,()=>{throw Error('Unexpected request')});assert.equal(r.status,400)});
+test('non-Slack destinations are rejected without a request',async()=>{const r=await handleRequest(req('test'),k=>k==='REVENUE_HQ_SLACK_WEBHOOK_URL'?'https://example.invalid/':env(k),()=>{throw Error('Unexpected request')});assert.equal(r.status,503)});
+test('Slack failures do not expose webhook values or upstream response bodies',async()=>{const r=await handleRequest(req('test'),env,async()=>new Response('sensitive upstream output',{status:403}));const body=JSON.stringify(await r.json());assert.equal(r.status,502);assert.doesNotMatch(body,/sensitive|NOT_A_REAL_SECRET/)});
