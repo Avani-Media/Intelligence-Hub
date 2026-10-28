@@ -1,104 +1,73 @@
-/* Visual-only Revenue HQ trial: H — Cool Porcelain. Disable this plugin to restore the prior palette. */
+/* Visual-only Revenue HQ trial: F — Soft Steel. Disable this plugin to restore the prior palette. */
 body.revenue-hq-mode #rf-view .rf-table-wrap .rf-table {
-  --rf-month-bg: #e5eff7;
-  --rf-month-alt: #dce8f2;
-  --rf-month-line: #c2d3e2;
+  --rf-month-bg: #46515f;
+  --rf-month-alt: #4d5968;
+  --rf-month-line: rgba(139, 176, 208, .24);
 }
 body.revenue-hq-mode #rf-view .rf-table-wrap .rf-table thead th:nth-child(-n+5) {
-  background: #dce8f2 !important;
-  color: #24364b !important;
+  background: #43505f !important;
+  color: #d8e3f0 !important;
 }
 body.revenue-hq-mode #rf-view .rf-table-wrap .rf-table thead th:nth-child(n+6):not(:last-child) {
-  background: #d3e2ef !important;
-  color: #24364b !important;
+  background: #5d6b7c !important;
+  color: #f0f5fb !important;
   border-right-color: var(--rf-month-line) !important;
 }
 body.revenue-hq-mode #rf-view .rf-table-wrap .rf-table thead th:last-child {
-  background: #ded9ed !important;
-  color: #302d49 !important;
+  background: #3d586e !important;
+  color: #f0effa !important;
 }
 body.revenue-hq-mode #rf-view .rf-table tbody tr:not(.rf-group) > td:nth-child(-n+5) {
-  background: #ffffff;
+  background: #1a1f27;
 }
 body.revenue-hq-mode #rf-view .rf-table tbody tr:nth-child(even):not(.rf-group) > td:nth-child(-n+5) {
-  background: #f3f7fa;
+  background: #202630;
 }
 body.revenue-hq-mode #rf-view .rf-table tbody td.rf-month:not(.rf-quarter-total) {
   background: var(--rf-month-bg) !important;
   border-right-color: var(--rf-month-line);
-  border-bottom-color: #cfdae5;
+  border-bottom-color: rgba(139, 176, 208, .16);
 }
 body.revenue-hq-mode #rf-view .rf-table tbody tr:nth-child(even) > td.rf-month:not(.rf-quarter-total) {
   background: var(--rf-month-alt) !important;
 }
 body.revenue-hq-mode #rf-view .rf-table tbody .rf-group > th:first-child {
-  background: #f0f5fa;
+  background: #252e3a;
 }
 body.revenue-hq-mode #rf-view .rf-table tbody th.rf-month-total {
-  background: #e5eff7 !important;
+  background: #46515f !important;
   border-right-color: var(--rf-month-line);
 }
 body.revenue-hq-mode #rf-view .rf-table tbody td.rf-quarter-total,
 body.revenue-hq-mode #rf-view .rf-table tbody th.rf-quarter-total:not(.rf-month-total) {
-  background: #e5e3f1 !important;
-  border-left: 1px solid #c7c3df;
+  background: #2d4558 !important;
+  border-left: 1px solid rgba(167, 178, 226, .28);
 }
 body.revenue-hq-mode #rf-view .rf-table tbody tr:nth-child(even) > td.rf-quarter-total {
-  background: #dedcec !important;
+  background: #334d61 !important;
 }
 body.revenue-hq-mode #rf-view .rf-table .rf-money-input,
 body.revenue-hq-mode #rf-view .rf-table .rf-month-open,
 body.revenue-hq-mode #rf-view .rf-table .rf-quarter-forecast,
 body.revenue-hq-mode #rf-view .rf-table .rf-money-prefix {
-  color: #172b42 !important;
+  color: #f3f5f8 !important;
 }
 body.revenue-hq-mode #rf-view .rf-table .rf-actual-mini span {
-  color: #006e64 !important;
+  color: #b3ebdc !important;
 }
 body.revenue-hq-mode #rf-view .rf-table .rf-actual-mini small {
-  color: #435973 !important;
+  color: #e0e6ee !important;
 }
 body.revenue-hq-mode #rf-view .rf-table td.rf-na,
 body.revenue-hq-mode #rf-view .rf-table .rf-month .rf-na {
-  color: #53677e !important;
+  color: #d3dce7 !important;
 }
 body.revenue-hq-mode #rf-view .rf-table .rf-reconcile-over {
-  background: #fcebed;
-  border-color: #c87480;
-  color: #84323e;
+  background: #48252f;
+  border-color: #a9636e;
+  color: #f2c0c3;
 }
 body.revenue-hq-mode #rf-view .rf-table .rf-reconcile-over strong {
-  color: #84323e;
+  color: #f2b2b8;
 }
 /* Preserve the existing changed/conflict outlines, focus styles and alert semantics. */
-
-/* Complete the light table treatment, including sticky cells and editable controls. */
-body.revenue-hq-mode #rf-view .rf-table-wrap { background: #f6f9fc; border-color: #c8d5e2; color-scheme: light; }
-body.revenue-hq-mode #rf-view .rf-table th,
-body.revenue-hq-mode #rf-view .rf-table td { color: #24364b; border-right-color: #cfdae5; border-bottom-color: #cfdae5; }
-body.revenue-hq-mode #rf-view .rf-table .rf-account,
-body.revenue-hq-mode #rf-view .rf-table .rf-sf-opportunity-link,
-body.revenue-hq-mode #rf-view .rf-table .rf-scale-child-account,
-body.revenue-hq-mode #rf-view .rf-table .rf-scale-child-label strong,
-body.revenue-hq-mode #rf-view .rf-table .rf-scale-balance-label strong { color: #24364b !important; }
-body.revenue-hq-mode #rf-view .rf-table .rf-sf-opportunity-link:hover { color: #14548a !important; }
-body.revenue-hq-mode #rf-view .rf-table .rf-status,
-body.revenue-hq-mode #rf-view .rf-table .rf-solution-pill { background: #e4edf5 !important; color: #294762 !important; border-color: #adbed0 !important; }
-body.revenue-hq-mode #rf-view .rf-table .rf-solution--paid-media { background: #e8e0f4 !important; color: #51416f !important; }
-body.revenue-hq-mode #rf-view .rf-table .rf-money-input,
-body.revenue-hq-mode #rf-view .rf-table .rf-scale-split-input { color: #172b42 !important; caret-color: #172b42; }
-body.revenue-hq-mode #rf-view .rf-table .rf-scale-split-input { background: #f5f9fc; border-color: #9cb3c8; }
-body.revenue-hq-mode #rf-view .rf-table .rf-money-input:focus { background: #ffffff; border-color: #397cae; }
-body.revenue-hq-mode #rf-view .rf-table .rf-detail-open,
-body.revenue-hq-mode #rf-view .rf-table .rf-row-action,
-body.revenue-hq-mode #rf-view .rf-table .rf-sf-link-cue { color: #375d7f !important; }
-body.revenue-hq-mode #rf-view .rf-table .rf-detail-open { background: #f2f6fb; border-color: #b0c3d5; }
-body.revenue-hq-mode #rf-view .rf-table .rf-breakdown,
-body.revenue-hq-mode #rf-view .rf-table .rf-scale-child-label small,
-body.revenue-hq-mode #rf-view .rf-table .rf-scale-balance-label small,
-body.revenue-hq-mode #rf-view .rf-table .rf-scale-child-meta { color: #52657a; }
-body.revenue-hq-mode #rf-view .rf-table .rf-reconcile-past { background: #fff2d7; color: #76500c; border-color: #bb964a; }
-body.revenue-hq-mode #rf-view .rf-table .rf-conflict-badge { color: #76500c; }
-body.revenue-hq-mode #rf-view .rf-table .rf-balance-ok { color: #11644e; }
-body.revenue-hq-mode #rf-view .rf-table .rf-balance-warn { color: #76500c; }
-body.revenue-hq-mode #rf-view .rf-table .rf-balance-over { color: #84323e; }
