@@ -378,3 +378,11 @@ select.rf-solution-pill{
 @media(prefers-reduced-motion:reduce){#rf-view .rf-reconcile-over strong{animation:none}}
 @media(max-width:1000px){#rf-view .rf-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:480px){#rf-view .rf-summary{grid-template-columns:1fr}#rf-view .rf-reconcile-summary button{min-width:0;flex-basis:100%}}
+
+/* Other Salesforce stages start collapsed; totals remain visible. */
+#rf-view .rf-pipeline-disclosure{margin:16px 0;border:1px solid rgba(148,163,184,.24);border-radius:12px;background:rgba(15,23,42,.35)}
+#rf-view .rf-pipeline-disclosure>summary{cursor:pointer;padding:14px 16px;color:#dbeafe;font-size:14px;font-weight:700}
+#rf-view .rf-pipeline-disclosure>summary span{margin-left:10px;color:#94a3b8;font-size:12px;font-weight:500}
+#rf-view .rf-pipeline-disclosure>summary:focus-visible{outline:2px solid #7dd3fc;outline-offset:3px}
+#rf-view .rf-pipeline-disclosure>.rf-table-wrap{margin:0;border-radius:0 0 12px 12px}
+#rf-view .rf-overall-total-table{margin-top:16px;max-height:none}
