@@ -71,3 +71,30 @@ body.revenue-hq-mode #rf-view .rf-table .rf-reconcile-over strong {
   color: #f2b2b8;
 }
 /* Preserve the existing changed/conflict outlines, focus styles and alert semantics. */
+
+/* Blue header bands distinguish headings and stage summaries from data rows. */
+body.revenue-hq-mode #rf-view .rf-table-wrap:is(.rf-committed-table,.rf-other-table,.rf-overall-total-table) .rf-table thead th:nth-child(-n+5) {
+  background: #19416b !important;
+  color: #eaf3ff !important;
+  border-bottom-color: #6188b1 !important;
+}
+body.revenue-hq-mode #rf-view .rf-table-wrap:is(.rf-committed-table,.rf-other-table,.rf-overall-total-table) .rf-table thead th:nth-child(n+6):not(:last-child) {
+  background: #275c8b !important;
+  color: #f0f6ff !important;
+  border-bottom-color: #6188b1 !important;
+}
+body.revenue-hq-mode #rf-view .rf-table-wrap:is(.rf-committed-table,.rf-other-table,.rf-overall-total-table) .rf-table thead th:last-child {
+  background: #214e7c !important;
+  color: #f0f6ff !important;
+  border-bottom-color: #6188b1 !important;
+}
+body.revenue-hq-mode #rf-view .rf-table-wrap .rf-table tbody .rf-group > th:first-child {
+  background: #16385a !important;
+  color: #dcecff !important;
+}
+body.revenue-hq-mode #rf-view .rf-table-wrap .rf-table tbody .rf-group > th.rf-month-total {
+  background: #234768 !important;
+}
+body.revenue-hq-mode #rf-view .rf-table-wrap .rf-table tbody .rf-group > th.rf-quarter-total:not(.rf-month-total) {
+  background: #1b3e65 !important;
+}
