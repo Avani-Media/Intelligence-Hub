@@ -1,0 +1,31 @@
+const {test}=require('node:test');
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const vm=require('node:vm');
+function app(){
+ let code=fs.readFileSync('runtime-plugins/revenue_forecast_studio.js','utf8');
+ const end=code.indexOf('\n})();');
+ code=code.slice(0,end)+'\nwindow.testApi={state,filteredOpps,summary,forecastView,table,cell,quarterMetrics'+(code.includes('function reconciliationItems(')?',reconciliationItems,remainingPanel':'')+'};\n})();';
+ const context={window:{addEventListener(){}},document:{addEventListener(){},querySelector(){return null},getElementById(){return null}},setTimeout(){},console,Date,Intl};
+ vm.runInNewContext(code,context);const a=context.window.testApi;
+ a.state.anchor=new Date('2026-07-01T00:00:00Z');return a;
+}
+function fixture(a){
+ const opp=(id,stage='Closed Won')=>({id,salesforce_opportunity_id:'sf-'+id,account_name:'Account '+id,opportunity_name:'Program '+id,lifecycle_status:'active',salesforce_stage:stage,avani_category:'Verbal',category_source:'manual',close_date:'2026-10-01'});
+ a.state.opps=[opp('a'),opp('zero'),opp('future'),opp('lost','Closed Lost'),opp('only'),{...opp('arch'),lifecycle_status:'archived'}];
+ const m=(id,key,value)=>({id:id+key,opportunity_id:id,schedule_date:key+'-01',current_salesforce:value,working_forecast:value,salesforce_present:true});
+ a.state.months=[m('a','2026-07',100),m('a','2026-08',100),m('zero','2026-07',0),m('future','2027-01',500),m('lost','2026-07',999),m('arch','2026-07',40)];
+ a.state.deliveries=[{salesforce_opportunity_id:'sf-a',delivery_date:'2026-07-10',client_delivery_revenue:120,delivered_volume:2},{salesforce_opportunity_id:'sf-a',delivery_date:'2026-08-10',client_delivery_revenue:80,delivered_volume:1},{salesforce_opportunity_id:'sf-only',delivery_date:'2026-07-10',client_delivery_revenue:25,delivered_volume:1}];return a;
+}
+const keys=['2026-07','2026-08','2026-09'];
+test('quarter uses nonzero revenue schedules and retains delivery-only reconciliation, not close date',()=>{const a=fixture(app());assert.deepEqual(Array.from(a.filteredOpps(),o=>o.id),['a','only']);});
+test('Closed Lost stays excluded with an explicit stage filter',()=>{const a=fixture(app());a.state.filters.stage='Closed Lost';assert.equal(a.filteredOpps().length,0);});
+test('forecast removes category controls and groups by Salesforce stage despite manual category',()=>{const a=fixture(app());const html=a.forecastView(a.filteredOpps(),keys,a.summary(a.filteredOpps(),keys),[],['Closed Won']);assert.doesNotMatch(html,/Avani Category|id="rfCategory"|Needs Category/);assert.match(html,/>Closed Won <span>/);assert.doesNotMatch(html,/>Committed<\/span>/);});
+test('offsetting past-month differences remain individually visible',()=>{const a=fixture(app());const html=a.forecastView(a.filteredOpps(),keys,a.summary(a.filteredOpps(),keys),[],[]);assert.match(html,/Update forecast/);assert.match(html,/Reconcile past month/);assert.match(html,/\$20\.00/);});
+test('remaining KPI opens an itemized breakdown including negative offsets',()=>{const a=fixture(app());const html=a.forecastView(a.filteredOpps(),keys,a.summary(a.filteredOpps(),keys),[],[]);assert.match(html,/id="rfRemainingKpi"/);assert.equal(typeof a.remainingPanel,'function');const panel=a.remainingPanel(a.filteredOpps(),keys);assert.match(panel,/Account a/);assert.match(panel,/-\$20\.00/);assert.match(panel,/\$20\.00/);assert.match(panel,/-\$25\.00/);});
+test('viewer cells remain read-only while editors retain existing working inputs',()=>{const a=fixture(app()),o=a.state.opps[0],m=a.state.months[0];assert.doesNotMatch(a.cell(o,m,'2026-07'),/data-edit-month/);a.state.role='editor';assert.match(a.cell(o,m,'2026-07'),/data-edit-month/);});
+test('cent rounding does not flag floating-point residue',()=>{const a=fixture(app());a.state.months[0].current_salesforce=.3;a.state.months[0].working_forecast=.3;a.state.deliveries[0].client_delivery_revenue=.1+.2;assert.equal(typeof a.reconciliationItems,'function');assert.equal(a.reconciliationItems([a.state.opps[0]],['2026-07']).length,0);});
+test('a working draft matching delivery does not hide an unresolved Salesforce difference',()=>{const a=fixture(app());a.state.months[0].working_forecast=120;const html=a.cell(a.state.opps[0],a.state.months[0],'2026-07');assert.match(html,/Update forecast/);assert.match(html,/Salesforce balance -\$20.00/);assert.match(html,/Working balance \$0.00/);});
+test('past scheduled revenue with no delivery still gets a reconciliation alert',()=>{const a=fixture(app());a.state.deliveries=[];assert.match(a.cell(a.state.opps[0],a.state.months[0],'2026-07'),/Reconcile past month/);});
+test('missing Salesforce schedules are excluded from forecast but actuals remain visible',()=>{const a=fixture(app());a.state.months.forEach(m=>m.salesforce_present=false);assert.deepEqual(Array.from(a.filteredOpps(),o=>o.id),['a','only']);assert.equal(a.summary(a.filteredOpps(),keys).current,0);assert.equal(a.summary(a.filteredOpps(),keys).remaining,-225);});
+test('remaining revenue focus retains positive months despite a zero quarterly net',()=>{const a=fixture(app());a.state.filters.focus='remaining';assert.deepEqual(Array.from(a.filteredOpps(),o=>o.id),['a']);});

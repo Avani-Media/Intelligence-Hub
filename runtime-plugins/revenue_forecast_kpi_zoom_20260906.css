@@ -1,0 +1,157 @@
+
+/* REVENUE_HQ_KPI_ZOOM_20260906 — compact cards + click-to-zoom details */
+.rf-view .rf-summary .rf-kpi{
+  cursor:pointer;
+}
+.rf-view .rf-summary .rf-kpi:focus-visible{
+  outline:none;
+  box-shadow:0 0 0 2px rgba(255,255,255,.92),0 0 0 5px rgba(56,189,248,.55),0 16px 38px rgba(0,0,0,.24),0 0 28px var(--rf-kpi-glow,rgba(77,112,255,.34))!important;
+}
+.rf-kpi-zoom-overlay{
+  position:fixed;
+  inset:0;
+  z-index:2600;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  background:rgba(2,6,23,.68);
+  backdrop-filter:blur(8px);
+  -webkit-backdrop-filter:blur(8px);
+  opacity:0;
+  transition:opacity .20s ease;
+}
+.rf-kpi-zoom-overlay.is-open{opacity:1}
+.rf-kpi-zoom-card{
+  position:relative;
+  width:min(440px,92vw);
+  min-height:238px;
+  box-sizing:border-box;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.22);
+  border-radius:22px;
+  padding:26px 28px 24px;
+  color:#fff;
+  background:radial-gradient(circle at 88% 10%,rgba(255,255,255,.20),transparent 28%),linear-gradient(135deg,var(--rf-kpi-a,#1677ff),var(--rf-kpi-b,#4f46e5));
+  box-shadow:0 34px 90px rgba(0,0,0,.46),0 0 48px var(--rf-kpi-glow,rgba(77,112,255,.38)),inset 0 1px 0 rgba(255,255,255,.24);
+  transform:scale(.80) translateY(10px);
+  opacity:.35;
+  transition:transform .26s cubic-bezier(.18,.78,.2,1),opacity .20s ease;
+  cursor:pointer;
+  isolation:isolate;
+}
+.rf-kpi-zoom-overlay.is-open .rf-kpi-zoom-card{
+  transform:scale(1) translateY(0);
+  opacity:1;
+}
+.rf-kpi-zoom-card:before{
+  content:'';
+  position:absolute;
+  inset:-55% -35%;
+  z-index:0;
+  pointer-events:none;
+  background:linear-gradient(112deg,transparent 39%,rgba(255,255,255,.13) 50%,transparent 61%);
+  transform:rotate(5deg);
+}
+.rf-kpi-zoom-card:after{
+  content:'';
+  position:absolute;
+  width:160px;
+  height:160px;
+  right:-48px;
+  top:-66px;
+  z-index:0;
+  pointer-events:none;
+  border-radius:50%;
+  background:rgba(255,255,255,.13);
+}
+.rf-kpi-zoom-content{position:relative;z-index:2}
+.rf-kpi-zoom-kicker{
+  display:block;
+  margin-bottom:5px;
+  color:rgba(255,255,255,.70);
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.rf-kpi-zoom-label{
+  display:block;
+  color:rgba(255,255,255,.86);
+  font-size:11px;
+  font-weight:850;
+  letter-spacing:.07em;
+  text-transform:uppercase;
+}
+.rf-kpi-zoom-value{
+  display:block;
+  margin:7px 0 17px;
+  color:#fff;
+  font-size:31px;
+  line-height:1.05;
+  letter-spacing:-.025em;
+  text-shadow:0 4px 18px rgba(0,0,0,.20);
+}
+.rf-kpi-zoom-copy{
+  margin:0;
+  color:rgba(247,250,255,.94);
+  font-size:12px;
+  line-height:1.55;
+  font-weight:650;
+}
+.rf-kpi-zoom-formula{
+  display:block;
+  margin-top:12px;
+  padding-top:10px;
+  border-top:1px solid rgba(255,255,255,.16);
+  color:rgba(226,232,240,.78);
+  font-size:10px;
+  line-height:1.4;
+}
+.rf-kpi-zoom-close{
+  position:absolute;
+  z-index:4;
+  top:12px;
+  right:13px;
+  width:30px;
+  height:30px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(255,255,255,.16);
+  border-radius:50%;
+  background:rgba(2,6,23,.20);
+  color:rgba(255,255,255,.82);
+  font-size:18px;
+  line-height:1;
+  cursor:pointer;
+}
+.rf-kpi-zoom-close:hover{background:rgba(2,6,23,.34);color:#fff}
+.rf-kpi-zoom-hint{
+  display:block;
+  margin-top:11px;
+  color:rgba(255,255,255,.48);
+  font-size:8px;
+  letter-spacing:.04em;
+}
+body.rf-kpi-zoom-open{overflow:hidden}
+@media(max-width:560px){
+  .rf-kpi-zoom-overlay{padding:16px}
+  .rf-kpi-zoom-card{width:min(100%,420px);min-height:224px;padding:24px 22px 21px}
+  .rf-kpi-zoom-value{font-size:27px}
+}
+@media(prefers-reduced-motion:reduce){
+  .rf-kpi-zoom-overlay,.rf-kpi-zoom-card{transition:none!important}
+  .rf-kpi-zoom-card{transform:none!important}
+}
+
+/* REVENUE_HQ_KPI_SMALLER_TITLES_20260906 */
+.rf-view .rf-summary .rf-kpi>span{font-size:9px!important;line-height:1.15!important;letter-spacing:.065em!important}
+
+/* REVENUE_HQ_CLOSED_LOST_KPI_20260906 */
+.rf-view .rf-summary .rf-kpi.rf-kpi-loss{
+  --rf-kpi-a:#ef4444!important;
+  --rf-kpi-b:#991b1b!important;
+  --rf-kpi-glow:rgba(239,68,68,.44)!important;
+}
+

@@ -1,0 +1,40 @@
+const fs=require('node:fs');
+const assert=require('node:assert/strict');
+const {chromium}=require('playwright');
+(async()=>{
+ const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+ const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.route('**/*',route=>route.abort());
+ await page.setContent('<html><head></head><body class="revenue-hq-mode" style="background:#081223;margin:0"><main class="main"><section id="rf-view"></section></main></body></html>');
+ for(const name of ['revenue_forecast_studio','revenue_forecast_kpi_zoom_20260906'])await page.addStyleTag({content:fs.readFileSync('runtime-plugins/'+name+'.css','utf8')});
+ let code=fs.readFileSync('runtime-plugins/revenue_forecast_studio.js','utf8');const end=code.indexOf('\n})();');code=code.slice(0,end)+'\nwindow.testApi={state,render,filteredOpps,summary};\n})();';await page.addScriptTag({content:code});await page.addScriptTag({content:fs.readFileSync('runtime-plugins/revenue_forecast_kpi_zoom_20260906.js','utf8')});
+ await page.evaluate(()=>{
+  const {state,render}=window.testApi;state.anchor=new Date('2026-07-01T00:00:00Z');state.role='editor';
+  state.opps=[{id:'a',salesforce_opportunity_id:'006Rd00000RryzNIAR',account_name:'Scale Computing',opportunity_name:'Scale quarterly program',salesforce_stage:'Closed Won',lifecycle_status:'active',avani_category:'Verbal',category_source:'manual',updated_at:'2026-10-28'}, {id:'b',salesforce_opportunity_id:'sf-b',account_name:'Sample Account',opportunity_name:'Remaining opportunity',salesforce_stage:'Negotiation',lifecycle_status:'active'}];
+  state.months=[{id:'july',opportunity_id:'a',schedule_date:'2026-07-01',working_forecast:100,current_salesforce:100},{id:'aug',opportunity_id:'a',schedule_date:'2026-08-01',working_forecast:100,current_salesforce:100},{id:'b-july',opportunity_id:'b',schedule_date:'2026-07-01',working_forecast:900,current_salesforce:900}];
+  state.components=[{id:'pm',forecast_month_id:'july',component_name:'Paid Media',amount:100,is_active:true,sort_order:0}];
+  state.deliveries=[{salesforce_opportunity_id:'006Rd00000RryzNIAR',delivery_date:'2026-07-10',client_delivery_revenue:120,delivered_volume:2},{salesforce_opportunity_id:'006Rd00000RryzNIAR',delivery_date:'2026-08-10',client_delivery_revenue:80,delivered_volume:1}];render();
+ });
+ assert.equal(await page.locator('#rfCategory').count(),0);
+ assert.equal(await page.locator('.rf-summary .rf-kpi').count(),4);
+ assert.equal(await page.locator('.rf-scale-child').count(),1);
+ assert.equal(await page.locator('[data-scale-edit]').count(),1);
+ // All ordinary and component rows have nine columns after category removal.
+ const widths=await page.locator('.rf-table tr[data-op-row],.rf-scale-child').evaluateAll(rows=>rows.map(row=>row.cells.length));assert.ok(widths.every(n=>n===9),JSON.stringify(widths));
+ assert.ok(parseFloat(await page.locator('.rf-kpi strong').first().evaluate(el=>getComputedStyle(el).fontSize))>=22);
+ await page.locator('#rfRemainingKpi').click();assert.equal(await page.locator('.rf-remaining-panel').count(),1);assert.equal(await page.locator('.rf-kpi-zoom-overlay').count(),0);
+ assert.equal(await page.locator('[data-remaining-row]').count(),3);
+ await page.locator('#rfRemainingSearch').fill('Sample');assert.equal(await page.locator('[data-remaining-row]:visible').count(),1);
+ await page.keyboard.press('Escape');assert.equal(await page.locator('.rf-remaining-panel').count(),0);
+ await page.locator('#rfRemainingKpi').focus();await page.keyboard.press('Enter');assert.equal(await page.locator('.rf-remaining-panel').count(),1);
+ await page.locator('[data-close-remaining]').last().click();
+ await page.locator('.rf-kpi').first().click();assert.equal(await page.locator('.rf-kpi-zoom-overlay').count(),1);await page.keyboard.press('Escape');
+ await page.locator('#rfFocus').selectOption('update');assert.equal(await page.locator('[data-op-row]').count(),1);
+ await page.locator('#rfFocus').selectOption('');
+ await page.screenshot({path:'/tmp/revenue-hq-desktop.png',fullPage:true});
+ await page.setViewportSize({width:390,height:844});
+ assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth));
+ await page.locator('#rfRemainingKpi').click();assert.ok(await page.locator('.rf-remaining-panel').evaluate(el=>el.getBoundingClientRect().width<=innerWidth));
+ await page.screenshot({path:'/tmp/revenue-hq-mobile.png',fullPage:true});
+ assert.deepEqual(errors,[]);await browser.close();console.log('Browser checks passed: layout, Scale splits, focus filters, remaining dialog/search/keyboard, existing KPI zoom, mobile width, no runtime errors.');
+})().catch(e=>{console.error(e);process.exitCode=1});
