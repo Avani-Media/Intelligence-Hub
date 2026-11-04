@@ -129,3 +129,8 @@ body.revenue-hq-mode #rf-view .rf-table .rf-actual-mini .rf-remaining-callout.rf
 #rf-view .rf-monthly-remaining article small { font-size:11px; }
 #rf-view .rf-monthly-remaining article.rf-remaining-over { background:#f5dfe3; border-color:#d7a1ac; color:#742b3c; }
 @media(max-width:600px){#rf-view .rf-monthly-remaining>div{grid-template-columns:1fr}}
+
+/* Fully reconciled balances stay quiet; only nonzero balances are highlighted. */
+body.revenue-hq-mode #rf-view .rf-table .rf-actual-mini .rf-remaining-callout.rf-remaining-zero {
+  background:transparent; border-color:transparent; color:#fff !important;
+}
