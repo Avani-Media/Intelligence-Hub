@@ -98,3 +98,34 @@ body.revenue-hq-mode #rf-view .rf-table-wrap .rf-table tbody .rf-group > th.rf-m
 body.revenue-hq-mode #rf-view .rf-table-wrap .rf-table tbody .rf-group > th.rf-quarter-total:not(.rf-month-total) {
   background: #1b3e65 !important;
 }
+
+/* Compact currency and prominent monthly remaining balances, 2026-11-05. */
+body.revenue-hq-mode #rf-view .rf-edit-cell { justify-content:flex-end; gap:2px; }
+body.revenue-hq-mode #rf-view .rf-edit-cell .rf-money-input {
+  flex:0 1 auto; padding:7px 0; border-width:0; font-variant-numeric:tabular-nums;
+}
+body.revenue-hq-mode #rf-view .rf-money-prefix { font-size:16px; font-weight:750; }
+body.revenue-hq-mode #rf-view .rf-edit-cell .rf-detail-open { margin-left:6px; }
+body.revenue-hq-mode #rf-view .rf-table .rf-actual-mini .rf-remaining-callout {
+  display:block; align-self:stretch; padding:5px 7px; margin-top:4px;
+  border:1px solid #8dabc5; border-radius:6px; background:#dae7f2;
+  color:#183a56 !important; font-size:12px !important; font-weight:800;
+  white-space:normal; font-variant-numeric:tabular-nums;
+}
+body.revenue-hq-mode #rf-view .rf-table .rf-actual-mini .rf-remaining-callout.rf-remaining-over {
+  background:#f5dfe3; border-color:#d7a1ac; color:#742b3c !important;
+}
+#rf-view #rfRemainingKpi { border:2px solid #ffe4a3 !important; }
+#rf-view .rf-monthly-remaining {
+  margin:16px 0; padding:16px; border:1px solid #7896b1; border-radius:14px; background:#1c2c3d;
+}
+#rf-view .rf-monthly-remaining header { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; margin-bottom:12px; }
+#rf-view .rf-monthly-remaining header strong { color:#edf4fc; font-size:15px; }
+#rf-view .rf-monthly-remaining header small { color:#bdcddd; font-size:12px; }
+#rf-view .rf-monthly-remaining>div { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+#rf-view .rf-monthly-remaining article { padding:14px 16px; border-radius:10px; border:1px solid #a1bad0; background:#dae7f2; color:#183a56; min-width:0; }
+#rf-view .rf-monthly-remaining article span { display:block; font-size:13px; font-weight:700; }
+#rf-view .rf-monthly-remaining article strong { display:block; margin:6px 0; font-size:clamp(22px,2vw,30px); line-height:1.25; overflow-wrap:anywhere; font-variant-numeric:tabular-nums; }
+#rf-view .rf-monthly-remaining article small { font-size:11px; }
+#rf-view .rf-monthly-remaining article.rf-remaining-over { background:#f5dfe3; border-color:#d7a1ac; color:#742b3c; }
+@media(max-width:600px){#rf-view .rf-monthly-remaining>div{grid-template-columns:1fr}}
