@@ -42,3 +42,6 @@
 .sdv-dialog h3{margin-top:0}.sdv-dialog p{font-size:12px;line-height:1.6;color:#c9d8e8}.sdv-dialog label{margin:14px 0}.sdv-dialog select{width:100%;height:230px;font-size:12px}.sdv-dialog option{padding:8px;white-space:normal}.sdv-dialog option[hidden]{display:none}.sdv-dialog-actions{display:flex;justify-content:flex-end;gap:10px}.sdv-dialog #sdvLinkError{color:#f6bdc5}
 @media(max-width:900px){#sf-delivery-verification-view .sdv-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){#sf-delivery-verification-view .sdv-shell{padding:18px 12px}#sf-delivery-verification-view .sdv-head{flex-direction:column}#sf-delivery-verification-view .sdv-toolbar label{flex:1;min-width:140px}#sf-delivery-verification-view h2{font-size:23px}}
+
+#sf-delivery-verification-view .sdv-toolbar .sdv-completed-filter{flex-direction:row;align-items:center;align-self:flex-end;gap:8px;min-height:38px;cursor:pointer}
+#sf-delivery-verification-view #sdvShowComplete{width:16px;height:16px;min-height:0;padding:0;accent-color:var(--accent,#69e0b0)}
