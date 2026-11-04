@@ -26,6 +26,6 @@ async function read(date:string,linkedPartnerIds:string[]=[]){
  const deliveryIds=ids.length?' OR Id IN ('+ids.map(id=>`'${id}'`).join(',')+')':'';
  const partners=await query(`SELECT Id,Name,Partner__r.Name,Program__c,Program__r.Name,Program__r.Client_Name_Text__c,Program__r.Start_Date__c,Program__r.End_Date__c FROM Program_Partner__c WHERE ((Program__r.Start_Date__c <= ${date} AND Program__r.End_Date__c >= ${date})${deliveryIds}) ORDER BY Name LIMIT 10000`);
  if(partners.length>=10000)throw Error('Result limit');
- return {date,checkedAt:new Date().toISOString(),partners:partners.map(p=>({id:p.Id,name:p.Name,publisher:p.Partner__r?.Name||'',programId:p.Program__c,program:p.Program__r?.Name||'',account:p.Program__r?.Client_Name_Text__c||''})),deliveries:deliveries.map(d=>({id:d.Id,partnerId:d.Program_Partner__c,date:d.Delivery_Date__c,volume:d.Delivered_Volume__c==null?null:Number(d.Delivered_Volume__c)}))};
+ return {date,checkedAt:new Date().toISOString(),partners:partners.map(p=>({id:p.Id,name:p.Name,publisher:p.Partner__r?.Name||'',programId:p.Program__c,program:p.Program__r?.Name||'',account:p.Program__r?.Client_Name_Text__c||'',start:p.Program__r?.Start_Date__c||'',end:p.Program__r?.End_Date__c||''})),deliveries:deliveries.map(d=>({id:d.Id,partnerId:d.Program_Partner__c,date:d.Delivery_Date__c,volume:d.Delivered_Volume__c==null?null:Number(d.Delivered_Volume__c)}))};
 }
 Deno.serve((req:Request)=>handleRequest(req,{authorize,read}));
