@@ -33,8 +33,10 @@ export async function executeChange(input,user,{db,sf,now=()=>new Date(),fail}){
  if(Date.parse(d.expires_at)<now().getTime())fail(409,'DRAFT_EXPIRED','This review expired. Prepare it again.');
  if(!await audit.claim(d.id,user.id))fail(409,'IN_PROGRESS','Another submission is managing this record.');
  if(!await db.acquirePartner(d.partner_id,d.id)){await audit.finish(d.id,{status:'failed',error_code:'IN_PROGRESS'});fail(409,'IN_PROGRESS','Another Hub delivery action is processing for this partner.');}
- let keepLock=false;
+ let keepLock=false,programLocked=false;
  try{
+  programLocked=await db.acquireProgram(d.before_snapshot.programId,d.id);
+  if(!programLocked)fail(409,'IN_PROGRESS','Another Hub delivery action is processing for this program.');
   const current=await sf.getDelivery(d.record_id),before=d.before_snapshot;
   if(!current||!['modified','partnerId','programId','date','volume','free','rejected'].every(k=>current[k]===before[k]))fail(409,'RECORD_CHANGED','The Salesforce entry changed after your review. Refresh and review it again.');
   if(current.locked)fail(423,'RECORD_LOCKED','This entry is locked in Salesforce.');
@@ -50,5 +52,5 @@ export async function executeChange(input,user,{db,sf,now=()=>new Date(),fail}){
   let auditRecorded=true;try{await audit.finish(d.id,{status:'succeeded',error_code:null});keepLock=false}catch{auditRecorded=false}
   return complete(d,auditRecorded);
  }catch(error){try{await audit.finish(d.id,{status:'failed',error_code:error.code||'PRE_CHANGE_CHECK_FAILED'})}catch{}throw error}
- finally{if(!keepLock)try{await db.releasePartner(d.partner_id,d.id)}catch{}}
+ finally{if(!keepLock){if(programLocked)try{await db.releaseProgram(d.before_snapshot.programId,d.id)}catch{}try{await db.releasePartner(d.partner_id,d.id)}catch{}}}
 }

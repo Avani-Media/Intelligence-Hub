@@ -10,6 +10,16 @@ function validate(input,now){
  const d=input.date;
  if(typeof d!=='string'||!/^20\d{2}-\d{2}-\d{2}$/.test(d)||!Number.isFinite(Date.parse(d))||new Date(d).toISOString().slice(0,10)!==d||d<'2026-01-01'||d>today(now))fail(400,'INVALID_DATE','Choose a delivery date from Jan 1, 2026 through today.');
 }
+const amNumber=value=>{const m=String(value??'').trim().match(/^(?:AM\s*-?\s*)?(\d+)$/i);return m?'AM - '+m[1].replace(/^0+(?=\d)/,''):''};
+function validateCsv(partner,date,volume,expectedNumber){
+ const expected=amNumber(expectedNumber);
+ if(!expected||amNumber(partner.number)!==expected)fail(409,'CSV_PARTNER_CHANGED','The AM number no longer matches this Salesforce partner. Upload and review again.');
+ if(!partner.start||!partner.end||date<partner.start||date>partner.end)fail(400,'PROGRAM_DATE','The delivery date is outside this Salesforce program.');
+ if(typeof partner.programVolume!=='number'||!Number.isFinite(partner.programVolume)||partner.programVolume<=0||typeof partner.programDelivered!=='number'||!Number.isFinite(partner.programDelivered)||partner.programDelivered<0)fail(409,'VOLUME_UNAVAILABLE','Salesforce remaining volume could not be verified.');
+ const remaining=Math.max(0,partner.programVolume-partner.programDelivered);
+ if(volume>remaining)fail(409,'VOLUME_EXCEEDED',`Only ${remaining.toLocaleString('en-US')} leads remain on this Salesforce program. Review the volume before recording.`);
+ return {csvNumber:expected,remaining};
+}
 const reviewOf=d=>({...d.review,partnerId:d.partner_id,programId:d.program_id,date:d.delivery_date,volume:d.delivered_volume});
 const recorded=(d,auditRecorded=true)=>({ok:true,status:'recorded',requestId:d.id,deliveryId:d.sf_delivery_id,date:d.delivery_date,volume:d.delivered_volume,auditRecorded});
 export async function execute(input,user,{db,sf,now=()=>new Date()}){
@@ -23,8 +33,9 @@ export async function execute(input,user,{db,sf,now=()=>new Date()}){
   if(!await sf.canCreate())fail(403,'SF_CREATE_NOT_ALLOWED','The Salesforce connection cannot create Partner Delivery records with the required fields.');
   const partner=await sf.getPartner(input.partnerId);
   if(!partner?.programId)fail(400,'INVALID_PARTNER','Salesforce could not resolve the program for this partner.');
+  const csvReview=input.source==='csv'?validateCsv(partner,input.date,input.volume,input.expectedNumber):{};
   if((await sf.findDeliveries(partner.id,input.date)).length)fail(409,'DELIVERY_EXISTS','Salesforce already has a delivery entry for this partner and date. Review it in Salesforce instead of creating another.');
-  const draft=await db.createDraft({user_id:user.id,user_email:user.email,partner_id:partner.id,program_id:partner.programId,delivery_date:input.date,delivered_volume:input.volume,review:{number:partner.number,name:partner.name,program:partner.program,publisher:partner.publisher,account:partner.account},expires_at:new Date(instant.getTime()+10*60*1000).toISOString()});
+  const draft=await db.createDraft({user_id:user.id,user_email:user.email,partner_id:partner.id,program_id:partner.programId,delivery_date:input.date,delivered_volume:input.volume,review:{number:partner.number,name:partner.name,program:partner.program,publisher:partner.publisher,account:partner.account,...csvReview},expires_at:new Date(instant.getTime()+10*60*1000).toISOString()});
   return {ok:true,status:'review',requestId:draft.id,review:reviewOf(draft),expiresAt:draft.expires_at};
  }
  if(input.action!=='submit')fail(400,'INVALID_ACTION','Choose a supported delivery action.');
@@ -39,11 +50,14 @@ export async function execute(input,user,{db,sf,now=()=>new Date()}){
  validate({partnerId:draft.partner_id,date:draft.delivery_date,volume:draft.delivered_volume},now());
  if(!await db.claim(draft.id,user.id))fail(409,'IN_PROGRESS','Another Hub submission exists for this partner and date. Refresh verification before continuing.');
  if(!await db.acquirePartner(draft.partner_id,draft.id)){await db.finish(draft.id,{status:'failed',error_code:'IN_PROGRESS'});fail(409,'IN_PROGRESS','Another Hub delivery action is processing for this partner.');}
- let keepLock=false;
+ let keepLock=false,programLocked=false;
  try{
+  programLocked=await db.acquireProgram(draft.program_id,draft.id);
+  if(!programLocked)fail(409,'IN_PROGRESS','Another Hub delivery action is processing for this program.');
   if(!await sf.canCreate())fail(403,'SF_CREATE_NOT_ALLOWED','The Salesforce connection does not allow this delivery to be created.');
   const partner=await sf.getPartner(draft.partner_id);
   if(partner?.programId!==draft.program_id)fail(409,'PARTNER_CHANGED','The Salesforce partner or program changed. Review the link and prepare again.');
+  if(draft.review?.csvNumber)validateCsv(partner,draft.delivery_date,draft.delivered_volume,draft.review.csvNumber);
   if((await sf.findDeliveries(draft.partner_id,draft.delivery_date)).length)fail(409,'DELIVERY_EXISTS','A delivery entry now exists for this partner and date. Refresh verification and review it in Salesforce.');
   await db.finish(draft.id,{status:'submitting'});
   let result;keepLock=true;
@@ -60,7 +74,7 @@ export async function execute(input,user,{db,sf,now=()=>new Date()}){
  }catch(error){
   try{await db.finish(draft.id,{status:error?.code==='DELIVERY_EXISTS'?'blocked':'failed',error_code:error?.code||'PRE_CREATE_CHECK_FAILED'})}catch{}
   throw error;
- }finally{if(!keepLock)try{await db.releasePartner(draft.partner_id,draft.id)}catch{}}
+ }finally{if(!keepLock){if(programLocked)try{await db.releaseProgram(draft.program_id,draft.id)}catch{}try{await db.releasePartner(draft.partner_id,draft.id)}catch{}}}
 }
 export async function handleRequest(req,deps){
  if(req.method==='OPTIONS')return new Response('ok',{headers:CORS});

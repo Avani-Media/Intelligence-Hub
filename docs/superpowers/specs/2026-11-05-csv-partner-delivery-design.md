@@ -1,0 +1,11 @@
+# CSV Partner Delivery
+
+Approved scope: upload AM Number / Leads Delivered CSV, select one editable date defaulting to current Eastern date, preview exact Salesforce partner/program and issues, then explicitly Record All valid rows. Results are per row. No uploads create Salesforce entries until confirmed.
+
+Reuse the existing authenticated, writer-restricted prepare/submit endpoint sequentially; do not add a separate bulk write system. Each prepared CSV draft records its source and expected AM number. Recheck identity, program date and remaining volume on submission. Existing entries never get overwritten. Unknown/ambiguous AM numbers, repeated AM numbers, invalid counts and program-wide requested totals above the remaining goal are blocked. Missing totals fail closed. A stopped or uncertain run does not automatically retry. Existing manual delivery/edit/delete flows remain unchanged.
+
+Implementation choices: maximum 100 data rows / 256 KiB; positive whole counts up to 1,000,000; accept AM number or its full digits, never partial matching. Live lookup ignores current Hub filters. Quoted CSV, BOM and CRLF supported. CSV export of results escapes spreadsheet formulas. All operations use existing audit tables and partner locks. A new server-only program lock serializes all Hub creates/edits/deletes across partners under one Salesforce program, retaining locks for uncertain outcomes. External Salesforce changes can still race the checks, so the UI presents confirmed outcomes individually rather than claiming an atomic bulk transaction.
+
+User refinement: Download Delivery Template prefills AM numbers and client/campaign/publisher references for eligible missing-delivery rows under the main table date and filters. Counts remain blank. Fully delivered and already recorded rows are excluded.
+
+Verification: 103 Node tests pass. JSDOM interaction checks pass for template download, preview without Salesforce delivery writes, frozen review inputs/reset, explicit confirmation, one submission, results and close/refresh. Independent review identified a cross-partner program concurrency race; a RED-to-GREEN regression test and program-level mutex fixed it. Database RLS and denied client INSERT/DELETE verified. No real Salesforce writes were made during testing.
