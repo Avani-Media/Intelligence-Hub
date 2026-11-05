@@ -68,3 +68,10 @@
 #sdvManageDialog .sdv-record-confirm{flex-direction:row;align-items:flex-start;gap:10px;line-height:1.6}
 #sdvManageDialog .sdv-record-confirm input{width:18px;height:18px;min-height:0;flex-shrink:0;margin-top:3px;accent-color:var(--accent)}
 @media(max-width:600px){#sdvManageDialog .sdv-record-review{grid-template-columns:1fr}#sdvManageDialog .sdv-entry-list article{align-items:flex-start;flex-direction:column}}
+
+/* Make the selected verification date the primary filter. */
+#sf-delivery-verification-view .sdv-toolbar{align-items:flex-end}
+#sf-delivery-verification-view .sdv-toolbar .sdv-date-filter{min-width:230px;padding:12px 14px;border:2px solid #5b9ac9;border-left:5px solid #7dd3fc;border-radius:12px;background:var(--panel3,#173953);box-shadow:0 0 20px rgba(56,152,221,.13)}
+#sf-delivery-verification-view .sdv-date-filter>span{font-size:13px;font-weight:800;color:#d7f0ff;letter-spacing:.04em}
+#sf-delivery-verification-view .sdv-date-filter #sdvDate{width:100%;min-height:46px;padding:9px 12px;font-size:18px;font-weight:800;color:#fff;border-color:#78acd1;background:var(--bg,#06131f)}
+@media(max-width:600px){#sf-delivery-verification-view .sdv-toolbar .sdv-date-filter{flex-basis:100%;min-width:0}}
