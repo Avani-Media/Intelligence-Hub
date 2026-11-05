@@ -1,3 +1,4 @@
+import {executeChange} from './changes.mjs';
 const CORS={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, apikey, content-type, x-client-info','Access-Control-Allow-Methods':'POST, OPTIONS'};
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{...CORS,'Content-Type':'application/json','Cache-Control':'no-store'}});
 export class DeliveryError extends Error{constructor(status,code,message){super(message);this.status=status;this.code=code}}
@@ -16,6 +17,7 @@ export async function execute(input,user,{db,sf,now=()=>new Date()}){
  const allowed=await db.isWriter(user.id);
  if(input.action==='capabilities')return {ok:true,canRecord:allowed};
  if(!allowed)fail(403,'WRITER_REQUIRED','Recording deliveries is limited to approved Hub delivery editors.');
+ if(['list_records','prepare_change','submit_change'].includes(input.action))return executeChange(input,user,{db,sf,now,fail});
  if(input.action==='prepare'){
   const instant=now();validate(input,instant);
   if(!await sf.canCreate())fail(403,'SF_CREATE_NOT_ALLOWED','The Salesforce connection cannot create Partner Delivery records with the required fields.');
@@ -36,27 +38,29 @@ export async function execute(input,user,{db,sf,now=()=>new Date()}){
  if(Date.parse(draft.expires_at)<now().getTime())fail(409,'DRAFT_EXPIRED','The review expired. Prepare and confirm the delivery again.');
  validate({partnerId:draft.partner_id,date:draft.delivery_date,volume:draft.delivered_volume},now());
  if(!await db.claim(draft.id,user.id))fail(409,'IN_PROGRESS','Another Hub submission exists for this partner and date. Refresh verification before continuing.');
+ if(!await db.acquirePartner(draft.partner_id,draft.id)){await db.finish(draft.id,{status:'failed',error_code:'IN_PROGRESS'});fail(409,'IN_PROGRESS','Another Hub delivery action is processing for this partner.');}
+ let keepLock=false;
  try{
   if(!await sf.canCreate())fail(403,'SF_CREATE_NOT_ALLOWED','The Salesforce connection does not allow this delivery to be created.');
   const partner=await sf.getPartner(draft.partner_id);
   if(partner?.programId!==draft.program_id)fail(409,'PARTNER_CHANGED','The Salesforce partner or program changed. Review the link and prepare again.');
   if((await sf.findDeliveries(draft.partner_id,draft.delivery_date)).length)fail(409,'DELIVERY_EXISTS','A delivery entry now exists for this partner and date. Refresh verification and review it in Salesforce.');
   await db.finish(draft.id,{status:'submitting'});
-  let result;
+  let result;keepLock=true;
   try{result=await sf.createDelivery({Program_Partner__c:draft.partner_id,Program__c:draft.program_id,Delivery_Date__c:draft.delivery_date,Delivered_Volume__c:draft.delivered_volume});}
   catch(error){
-   if(error?.definite)fail(422,'SF_REJECTED','Salesforce rejected the entry. '+(error.safeMessage||'Check the program partner and required fields.'));
+   if(error?.definite){keepLock=false;fail(422,'SF_REJECTED','Salesforce rejected the entry. '+(error.safeMessage||'Check the program partner and required fields.'));}
    try{await db.finish(draft.id,{status:'uncertain',error_code:'OUTCOME_UNKNOWN'})}catch{}
    return {ok:false,code:'OUTCOME_UNKNOWN',requestId:draft.id,error:'Salesforce did not confirm the result. The Hub will not retry automatically. Refresh verification and check the Salesforce partner before recording again.'};
   }
   if(!result?.id){try{await db.finish(draft.id,{status:'uncertain',error_code:'MISSING_RESULT_ID'})}catch{}return {ok:false,code:'OUTCOME_UNKNOWN',requestId:draft.id,error:'Salesforce did not return a record ID. Check Salesforce before recording again.'};}
   let auditRecorded=true;
-  try{await db.finish(draft.id,{status:'succeeded',sf_delivery_id:result.id,error_code:null})}catch{auditRecorded=false}
+  try{await db.finish(draft.id,{status:'succeeded',sf_delivery_id:result.id,error_code:null});keepLock=false}catch{auditRecorded=false}
   return recorded({...draft,sf_delivery_id:result.id},auditRecorded);
  }catch(error){
   try{await db.finish(draft.id,{status:error?.code==='DELIVERY_EXISTS'?'blocked':'failed',error_code:error?.code||'PRE_CREATE_CHECK_FAILED'})}catch{}
   throw error;
- }
+ }finally{if(!keepLock)try{await db.releasePartner(draft.partner_id,draft.id)}catch{}}
 }
 export async function handleRequest(req,deps){
  if(req.method==='OPTIONS')return new Response('ok',{headers:CORS});

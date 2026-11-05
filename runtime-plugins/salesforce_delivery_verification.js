@@ -63,7 +63,8 @@ function visibleCampaignRows(rows,showComplete=false){return showComplete?rows:r
 function partnerLinkMarkup(partner){return `<a href="https://avanimedia.lightning.force.com/lightning/r/Program_Partner__c/${encodeURIComponent(partner.id)}/view" target="_blank" rel="noopener noreferrer" title="Open Salesforce program partner">${esc(partner.number||partner.name)} ↗</a>`;}
 function canRecordDelivery(row,allowed){return !!allowed&&row.status==='missing'&&!!row.partner?.id&&!fullyDelivered(row);}
 function recordDeliveryDate(now=new Date()){return new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);}
-if(typeof module!=='undefined'&&module.exports){module.exports={campaignRows,verifyRows,dateKey,autoLinks,visibleCampaignRows,partnerLinkMarkup,canRecordDelivery,recordDeliveryDate};return;}
+function canManageDelivery(row,allowed){return !!allowed&&!!row.partner?.id&&!!row.recordIds?.length&&row.status!=='shared';}
+if(typeof module!=='undefined'&&module.exports){module.exports={campaignRows,verifyRows,dateKey,autoLinks,visibleCampaignRows,partnerLinkMarkup,canRecordDelivery,recordDeliveryDate,canManageDelivery};return;}
 if(window.__avaniSalesforceDeliveryVerification)return;window.__avaniSalesforceDeliveryVerification=true;
 const VIEW='sf-delivery-verification',ID=VIEW+'-view';
 const labels={link:'Needs confirmation',recorded:'Recorded in SF',missing:'No SF record found',zero:'Record found — zero leads',shared:'Shared SF partner — review',unknown:'Record found — check volume',adjustment:'Adjustment recorded'};
@@ -80,10 +81,11 @@ function render(){const el=root();if(!el)return;const allVerified=state.data?ver
  el.querySelector('#sdvSearch').addEventListener('input',e=>{const input=e.target,start=input.selectionStart;state.search=input.value;render();const next=root().querySelector('#sdvSearch');next.focus();next.setSelectionRange(start,start)});
  el.querySelector('#sdvShowComplete').addEventListener('change',e=>{state.showComplete=e.target.checked;render()});
  el.querySelector('#sdvStatus').addEventListener('change',e=>{state.status=e.target.value;render()});
+ el.querySelectorAll('[data-sdv-manage]').forEach(b=>b.addEventListener('click',()=>openManage(b.dataset.sdvManage)));
  el.querySelectorAll('[data-sdv-record]').forEach(b=>b.addEventListener('click',()=>openRecord(b.dataset.sdvRecord)));
  el.querySelectorAll('[data-sdv-link]').forEach(b=>b.addEventListener('click',()=>openLink(b.dataset.sdvLink)));
 }
-function rowMarkup(r){return `<tr><td>${esc(r.account)}</td><td><strong>${esc(r.campaign)}</strong><small>CID ${esc(r.cid)}</small>${fullyDelivered(r)?`<small>Fully delivered in SF · ${fmt(r.partner.programDelivered)} / ${fmt(r.partner.programVolume)}</small>`:""}</td><td>${esc(r.publisher)}</td><td>${esc(r.day)}</td><td class="sdv-number">${fmt(r.volume)}</td><td><span class="sdv-status sdv-${r.status}">${labels[r.status]}</span>${r.status==='shared'?'<small>Partner total may span multiple linked campaigns.</small>':''}</td><td>${r.partner?`${partnerLinkMarkup(r.partner)}`:''}<button data-sdv-link="${esc(r.key)}" ${state.saving?'disabled':''}>${r.partner?'Change link':'Review link'}</button>${canRecordDelivery(r,state.canRecord)?`<button class="sdv-record-button" data-sdv-record="${esc(r.key)}" ${state.saving?'disabled':''}>Record Delivery</button>`:''}</td></tr>`}
+function rowMarkup(r){return `<tr><td>${esc(r.account)}</td><td><strong>${esc(r.campaign)}</strong><small>CID ${esc(r.cid)}</small>${fullyDelivered(r)?`<small>Fully delivered in SF · ${fmt(r.partner.programDelivered)} / ${fmt(r.partner.programVolume)}</small>`:""}</td><td>${esc(r.publisher)}</td><td>${esc(r.day)}</td><td class="sdv-number">${fmt(r.volume)}</td><td><span class="sdv-status sdv-${r.status}">${labels[r.status]}</span>${r.status==='shared'?'<small>Partner total may span multiple linked campaigns.</small>':''}</td><td>${r.partner?`${partnerLinkMarkup(r.partner)}`:''}<button data-sdv-link="${esc(r.key)}" ${state.saving?'disabled':''}>${r.partner?'Change link':'Review link'}</button>${canRecordDelivery(r,state.canRecord)?`<button class="sdv-record-button" data-sdv-record="${esc(r.key)}" ${state.saving?'disabled':''}>Record Delivery</button>`:''}${canManageDelivery(r,state.canRecord)?`<button data-sdv-manage="${esc(r.key)}" ${state.saving?'disabled':''}>Manage entries</button>`:''}</td></tr>`}
 async function allRows(client,table,columns,order,configure=q=>q){let out=[];for(let from=0;from<100000;from+=1000){const {data,error}=await configure(client.from(table).select(columns).order(order,{ascending:true})).range(from,from+999);if(error)throw error;out.push(...(data||[]));if((data||[]).length<1000)return out;}throw Error('Too many rows to verify completely.');}
 async function load(){if(state.saving)return;const requestId=++state.loadId,date=state.date;state.loading=true;state.data=null;state.error='';state.notice='';state.lastCreated=null;render();
  try{const sb=window.avaniSupabase;if(!sb)throw Error('Please sign in to the Hub.');const [snapshot,schedules,settings,capabilities]=await Promise.all([
@@ -107,7 +109,7 @@ function openRecord(key){
  if(state.saving||!state.data||!state.canRecord)return;
  const links=autoLinks(state.rows,state.links,state.data.partners,state.date),row=verifyRows(state.rows,links,state.data.partners,state.data.deliveries,state.date).find(r=>r.key===key);
  if(!row||!canRecordDelivery(row,state.canRecord))return;
- closeRecord();closeLink();
+ closeRecord();closeLink();closeManage();
  const dialog=document.createElement('dialog');dialog.id='sdvRecordDialog';dialog.className='sdv-dialog';
  const maxDate=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Manila',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
  dialog.innerHTML=`<form id="sdvRecordForm"><h3>Record Delivery in Salesforce</h3><p>${esc(row.account)} · CID ${esc(row.cid)} · Campaign publisher: ${esc(row.publisher)}</p><p>${esc(row.campaign)}</p><div id="sdvRecordFields"><label>Delivery date (Eastern Time)<input id="sdvRecordDate" type="date" min="2026-01-01" max="${maxDate}" required value="${recordDeliveryDate()}"></label><label>Delivered lead count<input id="sdvRecordVolume" type="number" min="1" max="1000000" step="1" required inputmode="numeric" placeholder="Enter delivered leads"></label></div><div id="sdvRecordReview"></div><p id="sdvRecordMessage" role="status">Reviewing will not create a Salesforce record.</p><div class="sdv-dialog-actions"><button id="sdvRecordCancel" type="button">Cancel</button><button id="sdvRecordPrepare" type="submit">Review delivery</button><button id="sdvRecordSubmit" type="button" hidden disabled>Record in Salesforce</button><button id="sdvRecordRefresh" type="button" hidden>Refresh verification</button></div></form>`;
@@ -144,6 +146,57 @@ function openRecord(key){
   }
  });
 }
+function closeManage(){if(!state.saving)document.getElementById('sdvManageDialog')?.remove();}
+async function openManage(key){
+ if(state.saving||!state.canRecord||!state.data)return;
+ const links=autoLinks(state.rows,state.links,state.data.partners,state.date),row=verifyRows(state.rows,links,state.data.partners,state.data.deliveries,state.date).find(r=>r.key===key);
+ if(!row||!canManageDelivery(row,state.canRecord))return;
+ closeRecord();closeLink();closeManage();
+ const dialog=document.createElement('dialog');dialog.id='sdvManageDialog';dialog.className='sdv-dialog';
+ dialog.innerHTML=`<h3>Manage Salesforce delivery entries</h3><p>${esc(row.account)} · CID ${esc(row.cid)} · ${esc(row.publisher)}</p><p>${esc(row.campaign)}</p><div id="sdvManageContent"></div><p id="sdvManageMessage" role="status">Loading individual Salesforce entries…</p><div class="sdv-dialog-actions"><button type="button" id="sdvManageBack" hidden>Back to entries</button><button type="button" id="sdvManageRefresh" hidden>Refresh verification</button><button type="button" id="sdvManageClose">Close</button></div>`;
+ document.body.appendChild(dialog);dialog.showModal();
+ dialog.addEventListener('cancel',e=>{if(state.saving)e.preventDefault()});dialog.addEventListener('close',()=>dialog.remove(),{once:true});
+ const content=dialog.querySelector('#sdvManageContent'),message=dialog.querySelector('#sdvManageMessage'),back=dialog.querySelector('#sdvManageBack'),close=dialog.querySelector('#sdvManageClose'),refresh=dialog.querySelector('#sdvManageRefresh');
+ let records=[];
+ const busy=value=>{state.saving=value;close.disabled=value;back.disabled=value;refresh.disabled=value};
+ close.addEventListener('click',closeManage);back.addEventListener('click',()=>{if(!state.saving)showList()});refresh.addEventListener('click',()=>{closeManage();load()});
+ function showList(){
+  back.hidden=true;refresh.hidden=true;message.textContent='Choose one entry. Editing or deleting will require another review and confirmation.';
+  content.innerHTML=records.length?`<div class="sdv-entry-list">${records.map((r,i)=>`<article><div><a href="https://avanimedia.lightning.force.com/lightning/r/Partner_Delivery__c/${encodeURIComponent(r.id)}/view" target="_blank" rel="noopener noreferrer">${esc(r.name||r.id)} ↗</a><small>${esc(r.date)} · ${fmt(r.volume)} leads${r.locked?' · Locked in Salesforce':''}</small></div><div><button type="button" data-edit-entry="${i}" ${r.locked?'disabled':''}>Edit</button><button type="button" class="sdv-delete-button" data-delete-entry="${i}" ${r.locked?'disabled':''}>Delete</button></div></article>`).join('')}</div>`:'<p>No entries were found. Refresh verification to see the latest status.</p>';
+  content.querySelectorAll('[data-edit-entry]').forEach(b=>b.addEventListener('click',()=>showEdit(records[Number(b.dataset.editEntry)])));
+  content.querySelectorAll('[data-delete-entry]').forEach(b=>b.addEventListener('click',()=>prepareChange(records[Number(b.dataset.deleteEntry)],'delete')));
+ }
+ function showEdit(record){
+  back.hidden=false;message.textContent='Edit the delivery date or lead count, then review the change.';
+  const maxDate=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Manila',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+  content.innerHTML=`<form id="sdvEditForm"><p><strong>${esc(record.name||record.id)}</strong></p><label>Delivery date<input id="sdvEditDate" type="date" required min="2026-01-01" max="${maxDate}" value="${esc(record.date)}"></label><label>Delivered lead count<input id="sdvEditVolume" type="number" required min="1" max="1000000" step="1" value="${record.volume===null?'':Number(record.volume)}"></label><button type="submit">Review changes</button></form>`;
+  content.querySelector('#sdvEditForm').addEventListener('submit',e=>{e.preventDefault();if(state.saving||!e.target.reportValidity())return;prepareChange(record,'edit',{date:content.querySelector('#sdvEditDate').value,volume:Number(content.querySelector('#sdvEditVolume').value)})});
+ }
+ async function prepareChange(record,kind,patch={}){
+  if(state.saving)return;busy(true);content.querySelectorAll('button').forEach(b=>b.disabled=true);message.textContent='Checking the exact Salesforce entry and preparing review…';
+  try{
+   const draft=await writerCall({action:'prepare_change',kind,recordId:record.id,partnerId:row.partner.id,...patch});
+   const before=draft.before,after=draft.after,r=draft.review;
+   if(draft.status!=='review'||!draft.requestId||!before||!r)throw Error('The change review could not be prepared.');
+   back.hidden=false;
+   content.innerHTML=`<h4>${kind==='delete'?'Confirm deletion':'Review changes'}</h4><dl class="sdv-record-review"><dt>Salesforce entry</dt><dd>${esc(before.name||before.id)}<small>${esc(before.id)}</small></dd><dt>Program partner</dt><dd>${esc(r.number||r.id)} · ${esc(r.name)}</dd><dt>Salesforce program</dt><dd>${esc(r.program)}</dd><dt>Delivery date</dt><dd>${esc(before.date)}${kind==='edit'?` → <strong>${esc(after.date)}</strong>`:''}</dd><dt>Delivered leads</dt><dd>${fmt(before.volume)}${kind==='edit'?` → <strong>${fmt(after.volume)}</strong>`:''}</dd>${before.free||before.rejected?`<dt>Other recorded leads</dt><dd>Free: ${fmt(before.free)} · Rejected: ${fmt(before.rejected)}</dd>`:''}</dl><label class="sdv-record-confirm"><input type="checkbox" id="sdvConfirmChange">${kind==='delete'?'I confirm deletion of this exact Salesforce delivery entry.':'I confirm the updated date and lead count for this exact Salesforce entry.'}</label><button id="sdvSubmitChange" type="button" class="${kind==='delete'?'sdv-delete-button':''}" disabled>${kind==='delete'?'Delete entry from Salesforce':'Save changes to Salesforce'}</button>`;
+   message.textContent=kind==='delete'?'This removes the selected delivery entry from Salesforce and affects its recorded delivery totals.':'The partner, program and rates will stay the same.';
+   const submit=content.querySelector('#sdvSubmitChange'),confirm=content.querySelector('#sdvConfirmChange');
+   confirm.addEventListener('change',()=>{submit.disabled=!confirm.checked});
+   submit.addEventListener('click',async()=>{
+    if(state.saving||!confirm.checked)return;busy(true);confirm.disabled=true;submit.disabled=true;message.textContent=kind==='delete'?'Deleting the confirmed entry in Salesforce…':'Saving the confirmed changes in Salesforce…';
+    let result;
+    try{result=await writerCall({action:'submit_change',requestId:draft.requestId});if(!['updated','deleted'].includes(result.status))throw Error('Salesforce did not confirm the change. Refresh verification before trying again.');}
+    catch(error){message.textContent=error.message;refresh.hidden=false;back.hidden=true;}
+    finally{busy(false);}
+    if(result&&['updated','deleted'].includes(result.status)){state.date=result.date;closeManage();await load();state.notice=result.status==='deleted'?'Delivery entry deleted in Salesforce.':'Delivery entry updated in Salesforce.';if(result.auditRecorded===false)state.notice+=' The Hub audit confirmation is pending.';if(result.status==='updated')state.lastCreated=result.deliveryId;render();}
+   });
+  }catch(error){message.textContent=error.message;back.hidden=false;refresh.hidden=false;content.querySelectorAll('[data-edit-entry],[data-delete-entry],button[type="submit"]').forEach(b=>b.disabled=false)}
+  finally{busy(false);}
+ }
+ try{const data=await writerCall({action:'list_records',partnerId:row.partner.id,date:state.date});if(!Array.isArray(data.records))throw Error('The entry list could not be loaded.');records=data.records;if(dialog.isConnected)showList();}
+ catch(error){message.textContent=error.message;refresh.hidden=false;}
+}
 function closeLink(){document.getElementById('sdvLinkDialog')?.remove();}
 function openLink(key){const row=state.rows.find(r=>r.key===key);if(!row||!state.data||state.saving)return;closeLink();const dialog=document.createElement('dialog');dialog.id='sdvLinkDialog';dialog.className='sdv-dialog';
  const current=autoLinks(state.rows,state.links,state.data.partners,state.date)[key]?.partnerId||'';const partners=[...state.data.partners].sort((a,b)=>a.account.localeCompare(b.account)||a.program.localeCompare(b.program)||a.name.localeCompare(b.name));
@@ -161,6 +214,6 @@ function init(){const main=document.querySelector('.main'),nav=document.querySel
  if(!nav.querySelector(`[data-view="${VIEW}"]`)){const button=document.createElement('button');button.type='button';button.dataset.view=VIEW;button.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3h8v3H8zM6 5H4v16h16V5h-2M8 13l3 3 5-6"/></svg><span>Salesforce Delivery Verification</span>';const campaigns=nav.querySelector('[data-view="campaigns"]');if(campaigns)campaigns.insertAdjacentElement('afterend',button);else nav.appendChild(button);button.addEventListener('click',()=>{closeLink();window.showView?.(VIEW);load()})}
 }
 window.addEventListener('avani:authenticated',()=>{init();if(root()?.classList.contains('active'))load()});
-document.addEventListener('click',e=>{const target=e.target.closest?.('[data-view],[data-mode],[data-hub-mode]');if(target&&!target.matches(`[data-view="${VIEW}"]`)){closeLink();closeRecord()}},true);
+document.addEventListener('click',e=>{const target=e.target.closest?.('[data-view],[data-mode],[data-hub-mode]');if(target&&!target.matches(`[data-view="${VIEW}"]`)){closeLink();closeRecord();closeManage()}},true);
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();

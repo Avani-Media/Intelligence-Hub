@@ -17,7 +17,30 @@ export function createDependencies(env,fetcher=fetch){
  const sfGet=async path=>{const s=await sfSession();return json(await send(s.base+'/services/data/v67.0/'+path,{headers:{Authorization:'Bearer '+s.token}}))};
  const query=async soql=>{const result=await sfGet('query?q='+encodeURIComponent(soql));if(!result.done||!Array.isArray(result.records))throw Error('Incomplete Salesforce query');return result.records};
  const allowedFields=['Program_Partner__c','Program__c','Delivery_Date__c','Delivered_Volume__c'];
+ const changes={
+  createDraft:async data=>{const rows=await rest('sf_delivery_changes','select=*','POST',{...data,status:'prepared'});if(!rows[0]?.id)throw Error('Change audit unavailable');return rows[0]},
+  get:async(id,uid)=>(await rest('sf_delivery_changes','select=*&id=eq.'+encodeURIComponent(id)+'&user_id=eq.'+encodeURIComponent(uid)+'&limit=1'))[0]||null,
+  claim:async(id,uid)=>{try{const rows=await rest('sf_delivery_changes','id=eq.'+encodeURIComponent(id)+'&user_id=eq.'+encodeURIComponent(uid)+'&status=eq.prepared&expires_at=gt.'+encodeURIComponent(new Date().toISOString())+'&select=id','PATCH',{status:'checking',updated_at:new Date().toISOString()});return rows.length===1}catch(e){if(e.httpStatus===409&&e.dbCode==='23505')return false;throw e}},
+  finish:async(id,fields)=>{const rows=await rest('sf_delivery_changes','id=eq.'+encodeURIComponent(id)+'&select=id','PATCH',{...fields,updated_at:new Date().toISOString()});if(rows.length!==1)throw Error('Change audit update unavailable')}
+ };
+ db.changes=changes;
+ db.acquirePartner=async(partner,requestId)=>{try{await rest('sf_delivery_partner_locks','select=request_id','POST',{partner_id:partner,request_id:requestId});return true}catch(e){if(e.httpStatus===409&&e.dbCode==='23505')return false;throw e}};
+ db.releasePartner=async(partner,requestId)=>{await rest('sf_delivery_partner_locks','partner_id=eq.'+encodeURIComponent(partner)+'&request_id=eq.'+encodeURIComponent(requestId),'DELETE')};
+ const deliveryFields='Id,Name,Program_Partner__c,Program__c,Delivery_Date__c,Delivered_Volume__c,Free_Delivered_Leads__c,Rejected_Leads__c,LastModifiedDate,Lock_Record__c,Lock_Partner_Delivery_Record__c';
+ const normalizeDelivery=r=>({id:r.Id,name:r.Name,partnerId:r.Program_Partner__c,programId:r.Program__c,date:r.Delivery_Date__c,volume:r.Delivered_Volume__c??null,free:r.Free_Delivered_Leads__c??0,rejected:r.Rejected_Leads__c??0,modified:r.LastModifiedDate,locked:!!(r.Lock_Record__c||r.Lock_Partner_Delivery_Record__c)});
+ const validRecord=id=>typeof id==='string'&&/^a00(?:[A-Za-z0-9]{12}|[A-Za-z0-9]{15})$/.test(id);
  const sf={
+  canChange:async kind=>{const d=await sfGet('sobjects/Partner_Delivery__c/describe');return kind==='delete'?!!d.deletable:!!d.updateable&&['Delivery_Date__c','Delivered_Volume__c'].every(name=>d.fields?.find(f=>f.name===name)?.updateable)},
+  getDelivery:async id=>{if(!validRecord(id))throw Error('Invalid delivery ID');const rows=await query(`SELECT ${deliveryFields} FROM Partner_Delivery__c WHERE Id = '${id}' LIMIT 1`);return rows[0]?normalizeDelivery(rows[0]):null},
+  listDeliveries:async(partner,date)=>{if(!/^a01(?:[A-Za-z0-9]{12}|[A-Za-z0-9]{15})$/.test(partner)||!/^20\d{2}-\d{2}-\d{2}$/.test(date))throw Error('Invalid delivery scope');const rows=await query(`SELECT ${deliveryFields} FROM Partner_Delivery__c WHERE Program_Partner__c = '${partner}' AND Delivery_Date__c = ${date} ORDER BY CreatedDate,Id LIMIT 201`);if(rows.length>200)throw Error('Too many delivery records');return rows.map(normalizeDelivery)},
+  changeDelivery:async(kind,id,payload,version)=>{
+   if(!['edit','delete'].includes(kind)||!validRecord(id)||!Number.isFinite(Date.parse(version)))throw Error('Invalid delivery change');
+   const session=await sfSession(),headers={Authorization:'Bearer '+session.token,'Content-Type':'application/json','If-Unmodified-Since':new Date(version).toUTCString()};
+   const response=await send(session.base+'/services/data/v67.0/sobjects/Partner_Delivery__c/'+id,{method:kind==='edit'?'PATCH':'DELETE',headers,...(kind==='edit'?{body:JSON.stringify({Delivery_Date__c:payload.Delivery_Date__c,Delivered_Volume__c:payload.Delivered_Volume__c})}:{})});
+   if(response.status===204)return {id};
+   if([400,401,403,404,405,409,412,415,422].includes(response.status))throw Object.assign(Error('Salesforce rejected change'),{definite:true,conflict:response.status===412||response.status===404});
+   throw Error('Unconfirmed Salesforce change');
+  },
   canCreate:async()=>{const d=await sfGet('sobjects/Partner_Delivery__c/describe');if(!d.createable||!Array.isArray(d.fields))return false;if(!allowedFields.every(name=>d.fields.find(f=>f.name===name)?.createable))return false;return !d.fields.some(f=>f.createable&&!f.nillable&&!f.defaultedOnCreate&&!f.calculated&&!allowedFields.includes(f.name))},
   getPartner:async id=>{if(!/^a01(?:[A-Za-z0-9]{12}|[A-Za-z0-9]{15})$/.test(id))throw Error('Invalid partner');const [p]=await query(`SELECT Id,Name,AUTO_Program_Partner_Number__c,Program_Partner_Number__c,Partner__r.Name,Program__c,Program__r.Name,Program__r.Client_Name_Text__c FROM Program_Partner__c WHERE Id = '${id}' LIMIT 1`);if(!p)return null;return {id:p.Id,programId:p.Program__c,number:p.AUTO_Program_Partner_Number__c||p.Program_Partner_Number__c||'',name:p.Name,publisher:p.Partner__r?.Name||'',program:p.Program__r?.Name||'',account:p.Program__r?.Client_Name_Text__c||''}},
   findDeliveries:async(partnerId,date)=>{if(!/^a01(?:[A-Za-z0-9]{12}|[A-Za-z0-9]{15})$/.test(partnerId)||!/^20\d{2}-\d{2}-\d{2}$/.test(date))throw Error('Invalid delivery query');return query(`SELECT Id,Delivered_Volume__c FROM Partner_Delivery__c WHERE Program_Partner__c = '${partnerId}' AND Delivery_Date__c = ${date} ORDER BY Id LIMIT 2`)},

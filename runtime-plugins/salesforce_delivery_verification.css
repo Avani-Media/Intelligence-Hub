@@ -55,3 +55,16 @@
 #sdvRecordDialog button:disabled{opacity:.5;cursor:wait}
 #sdvRecordDialog #sdvRecordSubmit{background:#175447;border-color:#6fcab1}
 @media(max-width:600px){#sdvRecordDialog .sdv-record-review{grid-template-columns:1fr;gap:5px}#sdvRecordDialog dd{margin-bottom:8px}.sdv-dialog-actions{flex-wrap:wrap}}
+
+#sdvManageDialog [hidden]{display:none!important}
+#sdvManageDialog .sdv-entry-list{display:grid;gap:10px;margin:16px 0}
+#sdvManageDialog .sdv-entry-list article{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;background:var(--panel2);border:1px solid var(--line2);border-radius:9px}
+#sdvManageDialog a{color:#b7dcff}#sdvManageDialog small{display:block;margin-top:5px;color:var(--muted);font-size:11px}
+#sdvManageDialog .sdv-entry-list article>div:last-child{display:flex;gap:8px}
+#sdvManageDialog .sdv-delete-button{color:#ffdee2;border-color:#ad6571;background:#592d3a}
+#sdvManageDialog button:disabled{opacity:.5;cursor:not-allowed}
+#sdvManageDialog .sdv-record-review{display:grid;grid-template-columns:150px 1fr;gap:10px;padding:16px;background:var(--panel2);border:1px solid var(--line2);border-radius:10px}
+#sdvManageDialog dt{font-size:12px;color:var(--muted)}#sdvManageDialog dd{margin:0;font-size:13px;overflow-wrap:anywhere}
+#sdvManageDialog .sdv-record-confirm{flex-direction:row;align-items:flex-start;gap:10px;line-height:1.6}
+#sdvManageDialog .sdv-record-confirm input{width:18px;height:18px;min-height:0;flex-shrink:0;margin-top:3px;accent-color:var(--accent)}
+@media(max-width:600px){#sdvManageDialog .sdv-record-review{grid-template-columns:1fr}#sdvManageDialog .sdv-entry-list article{align-items:flex-start;flex-direction:column}}
